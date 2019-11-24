@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_posts"
+            android:title="posts"/>
+        <item
+            android:id="@+id/nav_search_posts"
+            android:title="search_posts"/>
+        <item
+            android:id="@+id/nav_search_users"
+            android:title="search_users"/>
+        <item
+            android:id="@+id/nav_followings_list"
+            android:title="followings_list"/>
+        <item
+            android:id="@+id/nav_followers_list"
+            android:title="followers_list"/>
+        <item
+            android:id="@+id/nav_favorites_list"
+            android:title="favorites_list"/>
+        <item
+            android:id="@+id/nav_my_posts"
+            android:title="my_posts"/>
+        <item
+            android:id="@+id/nav_policy"
+            android:title="policy"/>
+    </group>
+</menu>
