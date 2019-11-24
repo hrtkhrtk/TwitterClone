@@ -41,9 +41,9 @@ class LoginActivity : AppCompatActivity() {
             if (task.isSuccessful) {
                 // 成功した場合
                 val user = mAuth.currentUser
-                val userRef = mDataBaseReference.child("users").child(user!!.uid)
+                val usersRef = mDataBaseReference.child("users").child(user!!.uid)
 
-                userRef.addListenerForSingleValueEvent(
+                usersRef.addListenerForSingleValueEvent(
                     object : ValueEventListener {
                         override fun onDataChange(snapshot: DataSnapshot) {
                             val data = snapshot.value as Map<*, *>?
@@ -83,7 +83,6 @@ class LoginActivity : AppCompatActivity() {
             val password = passwordText.text.toString()
 
             if (email.length != 0 && password.length >= 6) {
-
                 login(email, password)
             } else {
                 // エラーを表示する
