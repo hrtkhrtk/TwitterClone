@@ -9,7 +9,7 @@ import com.google.firebase.auth.FirebaseAuth
 import android.preference.PreferenceManager
 import android.view.inputmethod.InputMethodManager
 import com.google.firebase.database.*
-import kotlinx.android.synthetic.main.activity_setting.*
+import kotlinx.android.synthetic.main.activity_registering.*
 import android.Manifest
 import android.app.Activity
 import android.content.ContentValues
@@ -25,8 +25,7 @@ import android.util.Log
 import android.view.View
 import java.io.ByteArrayOutputStream
 
-
-class SettingActivity : AppCompatActivity(), DatabaseReference.CompletionListener {
+class RegisteringActivity : AppCompatActivity(), DatabaseReference.CompletionListener {
     companion object {
         //private val PERMISSIONS_REQUEST_CODE = 100
         private val PERMISSIONS_REQUEST_CODE_01 = 201 // icon_image
@@ -43,66 +42,16 @@ class SettingActivity : AppCompatActivity(), DatabaseReference.CompletionListene
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_setting)
+        setContentView(R.layout.activity_registering)
 
         mDataBaseReference = FirebaseDatabase.getInstance().reference
 
         // UIの初期設定
-        title = "設定"
-
-        // EditTextに反映させる
-        val user = FirebaseAuth.getInstance().currentUser
-        if (user == null) {
-            // ログインしていない場合は何もしない
-            //Snackbar.make(findViewById(android.R.id.content), "ログインしていません", Snackbar.LENGTH_LONG).show()
-            Snackbar.make(findViewById(android.R.id.content), "ログインしていません", Snackbar.LENGTH_LONG)
-                    .setAction("Log in") {
-                        val intent = Intent(this, LoginActivity::class.java)
-                        startActivity(intent)
-                    }.show()
-        } else {
-            val userRef = mDataBaseReference.child("users").child(user!!.uid)
-            userRef.addListenerForSingleValueEvent(
-                    object : ValueEventListener {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            val data = snapshot.value as Map<*, *>?
-                            //saveName(data!!["name"] as String)
-                            nicknameText.setText(data!!["nickname"] as String)
-                            //selfIntroductionText.setText(data["self_introduction"] as String) // kotlin.TypeCastException: null cannot be cast to non-null type kotlin.String が出る
-                            //selfIntroductionText.setText(data["self_introduction"] as String? ?: "")
-                            selfIntroductionText.setText(data["self_introduction"] as String)
-                            textEmail.setText(data["email"] as String)
-                            textIdForSearch.setText(data["id_for_search"] as String)
-                            textCreatedAt.setText(data["created_at"] as String)
-                            textStatus.setText(data["status"] as String)
-                            textAvailableTo.setText(data["available_to"] as String)
-
-                            val icon_image = data["icon_image"] as String
-                            val background_image = data["background_image"] as String
-
-                            if (icon_image.isNotEmpty()) { // 参考：Lesson8のMainActivity.kt
-                                val bytes = Base64.decode(icon_image, Base64.DEFAULT) // 参考：Lesson8のMainActivity.kt
-                                val imageBytes = bytes.clone() // 参考：Lesson8のQuestion.kt
-                                val image = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size).copy(Bitmap.Config.ARGB_8888, true) // 参考：Lesson8のQuestionsListAdapter.kt
-                                iconImageView.setImageBitmap(image)
-                            }
-
-                            if (background_image.isNotEmpty()) { // 参考：Lesson8のMainActivity.kt
-                                val bytes = Base64.decode(background_image, Base64.DEFAULT) // 参考：Lesson8のMainActivity.kt
-                                val imageBytes = bytes.clone() // 参考：Lesson8のQuestion.kt
-                                val image = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size).copy(Bitmap.Config.ARGB_8888, true) // 参考：Lesson8のQuestionsListAdapter.kt
-                                backgroundImageView.setImageBitmap(image)
-                            }
-                        }
-
-                        override fun onCancelled(firebaseError: DatabaseError) {}
-                    }
-            )
-        }
+        title = "登録"
 
 
 
-        changeButton.setOnClickListener{v ->
+        registerButton.setOnClickListener { v ->
             // キーボードが出ていたら閉じる
             val im = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
             im.hideSoftInputFromWindow(v.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
@@ -119,59 +68,79 @@ class SettingActivity : AppCompatActivity(), DatabaseReference.CompletionListene
                             startActivity(intent)
                         }.show()
             } else {
-                val nickname = nicknameText.text.toString()
                 val self_introduction = selfIntroductionText.text.toString()
 
-                if (nickname.length != 0) {
-                    val userRef = mDataBaseReference.child("users").child(user.uid)
-                    //val data = HashMap<String, String>()
-                    val data = HashMap<String, String>()
-                    data["nickname"] = nickname
-                    data["self_introduction"] = self_introduction
+                val userRef = mDataBaseReference.child("users").child(user.uid)
+                val data = HashMap<String, String>()
+                data["self_introduction"] = self_introduction
 
-                    // 添付画像を取得する
-                    val drawableIconImageView = iconImageView.drawable as? BitmapDrawable
-                    // 添付画像が設定されていれば画像を取り出してBASE64エンコードする
-                    if (drawableIconImageView != null) {
-                        val bitmap = drawableIconImageView.bitmap
-                        val baos = ByteArrayOutputStream()
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos)
-                        val bitmapString = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT)
+                // 添付画像を取得する
+                val drawableIconImageView = iconImageView.drawable as? BitmapDrawable
+                // 添付画像が設定されていれば画像を取り出してBASE64エンコードする
+                if (drawableIconImageView != null) {
+                    val bitmap = drawableIconImageView.bitmap
+                    val baos = ByteArrayOutputStream()
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos)
+                    val bitmapString = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT)
 
-                        data["icon_image"] = bitmapString
-                    }
-
-                    // 添付画像を取得する
-                    val drawableBackgroundImageView = backgroundImageView.drawable as? BitmapDrawable
-                    // 添付画像が設定されていれば画像を取り出してBASE64エンコードする
-                    if (drawableBackgroundImageView != null) {
-                        val bitmap = drawableBackgroundImageView.bitmap
-                        val baos = ByteArrayOutputStream()
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos)
-                        val bitmapString = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT)
-
-                        data["background_image"] = bitmapString
-                    }
-
-                    //userRef.setValue(data)
-                    //userRef.setValue(data, this)
-                    userRef.updateChildren(data as Map<String, String>, this)
-                    // Lesson8
-                    // 「保存する際はDatabaseReferenceクラスのsetValueを使いますが、今回は第2引数も指定しています。
-                    // 第2引数にはCompletionListenerクラスを指定します（今回はActivityがCompletionListenerクラスを実装している）。」
-                    progressBar.visibility = View.VISIBLE
-
-                    // 変更した表示名をPreferenceに保存する
-                    val sp = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-                    val editor = sp.edit()
-                    editor.putString(NameKEY, nickname)
-                    editor.commit()
-
-                    Snackbar.make(v, "表示名を変更しました", Snackbar.LENGTH_LONG).show()
-                } else {
-                    // エラーを表示する
-                    Snackbar.make(v, "正しく入力してください", Snackbar.LENGTH_LONG).show()
+                    data["icon_image"] = bitmapString
                 }
+
+                // 添付画像を取得する
+                val drawableBackgroundImageView = backgroundImageView.drawable as? BitmapDrawable
+                // 添付画像が設定されていれば画像を取り出してBASE64エンコードする
+                if (drawableBackgroundImageView != null) {
+                    val bitmap = drawableBackgroundImageView.bitmap
+                    val baos = ByteArrayOutputStream()
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos)
+                    val bitmapString = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT)
+
+                    data["background_image"] = bitmapString
+                }
+
+                //userRef.setValue(data)
+                //userRef.setValue(data, this)
+                userRef.updateChildren(data as Map<String, String>, this)
+                // Lesson8
+                // 「保存する際はDatabaseReferenceクラスのsetValueを使いますが、今回は第2引数も指定しています。
+                // 第2引数にはCompletionListenerクラスを指定します（今回はActivityがCompletionListenerクラスを実装している）。」
+                progressBar.visibility = View.VISIBLE
+            }
+        }
+
+
+
+        skipButton.setOnClickListener { v ->
+            // キーボードが出ていたら閉じる
+            val im = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            im.hideSoftInputFromWindow(v.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+
+            // ログイン済みのユーザーを取得する
+            val user = FirebaseAuth.getInstance().currentUser
+
+            if (user == null) {
+                // ログインしていない場合は何もしない
+                //Snackbar.make(v, "ログインしていません", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(v, "ログインしていません", Snackbar.LENGTH_LONG)
+                        .setAction("Log in") {
+                            val intent = Intent(this, LoginActivity::class.java)
+                            startActivity(intent)
+                        }.show()
+            } else {
+                val userRef = mDataBaseReference.child("users").child(user.uid)
+                val data = HashMap<String, String>()
+
+                data["self_introduction"] = ""
+                data["icon_image"] = ""
+                data["background_image"] = ""
+
+                //userRef.setValue(data)
+                //userRef.setValue(data, this)
+                userRef.updateChildren(data as Map<String, String>, this)
+                // Lesson8
+                // 「保存する際はDatabaseReferenceクラスのsetValueを使いますが、今回は第2引数も指定しています。
+                // 第2引数にはCompletionListenerクラスを指定します（今回はActivityがCompletionListenerクラスを実装している）。」
+                progressBar.visibility = View.VISIBLE
             }
         }
 
@@ -228,30 +197,6 @@ class SettingActivity : AppCompatActivity(), DatabaseReference.CompletionListene
             }
             //    }
             //}
-        }
-
-
-
-        toPurchasingActivityButton.setOnClickListener { v ->
-            val intent = Intent(this, PurchasingActivity::class.java)
-            startActivity(intent)
-        }
-
-
-
-        logoutButton.setOnClickListener { v ->
-            FirebaseAuth.getInstance().signOut()
-            nicknameText.setText("")
-            selfIntroductionText.setText("")
-            textEmail.setText("")
-            textIdForSearch.setText("")
-            textCreatedAt.setText("")
-            textStatus.setText("")
-            textAvailableTo.setText("")
-            //Snackbar.make(v, "ログアウトしました", Snackbar.LENGTH_LONG).show()
-
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
         }
     }
 
@@ -402,7 +347,10 @@ class SettingActivity : AppCompatActivity(), DatabaseReference.CompletionListene
 
         if (databaseError == null) {
             //finish() // これしたら閉じられる？
-            Snackbar.make(findViewById(android.R.id.content), "変更に成功しました", Snackbar.LENGTH_LONG).show()
+            //Snackbar.make(findViewById(android.R.id.content), "変更に成功しました", Snackbar.LENGTH_LONG).show()
+
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
         } else {
             Snackbar.make(findViewById(android.R.id.content), "変更に失敗しました", Snackbar.LENGTH_LONG).show()
         }

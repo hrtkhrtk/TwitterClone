@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="hrtkhrtk.twitterclone">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -25,7 +25,9 @@
         <activity android:name=".LoginActivity" />
         <activity android:name=".SignupActivity" />
         <activity android:name=".SettingActivity" />
-        <activity android:name=".PurchasingActivity"></activity>
+        <activity android:name=".PurchasingActivity" />
+        <activity android:name=".PurchasingCompleteActivity" />
+        <activity android:name=".RegisteringActivity"></activity>
     </application>
 
 </manifest>

@@ -1,6 +1,7 @@
 package hrtkhrtk.twitterclone
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.design.widget.Snackbar
@@ -88,7 +89,10 @@ class SignupActivity : AppCompatActivity() {
                 progressBar.visibility = View.GONE
 
                 // Activityを閉じる
-                finish()
+                //finish()
+
+                val intent = Intent(this, RegisteringActivity::class.java)
+                startActivity(intent)
 
             } else {
                 // 失敗した場合
