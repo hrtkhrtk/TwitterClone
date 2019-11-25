@@ -150,34 +150,38 @@ class SettingActivity : AppCompatActivity(), DatabaseReference.CompletionListene
 
 
         iconImageView.setOnClickListener { // 参考：Lesson4項目3.1「補足」
-            object : View.OnClickListener {
-                override fun onClick(v: View?) {
+            //object : View.OnClickListener {
+            //    override fun onClick(v: View?) {
                     Log.d("test191125n01", "test191125n01")
                     // パーミッションの許可状態を確認する
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                            Log.d("test191125n10", "test191125n10")
                             // 許可されている
                             //showChooser()
                             showChooser(CHOOSER_REQUEST_CODE_01)
                         } else {
+                            Log.d("test191125n11", "test191125n11")
                             // 許可されていないので許可ダイアログを表示する
                             requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSIONS_REQUEST_CODE_01)
 
-                            return
+                            //return
                         }
                     } else {
+                        Log.d("test191125n12", "test191125n12")
                         //showChooser()
                         showChooser(CHOOSER_REQUEST_CODE_01)
                     }
-                }
-            }
+            //    }
+            //}
         }
 
 
 
         backgroundImageView.setOnClickListener { // 参考：Lesson4項目3.1「補足」
-            object : View.OnClickListener {
-                override fun onClick(v: View?) {
+            //object : View.OnClickListener {
+            //    override fun onClick(v: View?) {
+                    Log.d("test191125n02", "test191125n02")
                     // パーミッションの許可状態を確認する
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
@@ -188,14 +192,14 @@ class SettingActivity : AppCompatActivity(), DatabaseReference.CompletionListene
                             // 許可されていないので許可ダイアログを表示する
                             requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSIONS_REQUEST_CODE_02)
 
-                            return
+                            //return
                         }
                     } else {
                         //showChooser()
                         showChooser(CHOOSER_REQUEST_CODE_02)
                     }
-                }
-            }
+            //    }
+            //}
         }
 
 
@@ -307,7 +311,9 @@ class SettingActivity : AppCompatActivity(), DatabaseReference.CompletionListene
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             PERMISSIONS_REQUEST_CODE_01 -> {
+                Log.d("test191125n20", "test191125n20")
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d("test191125n21", "test191125n21")
                     // ユーザーが許可したとき
                     showChooser(CHOOSER_REQUEST_CODE_01)
                 }
