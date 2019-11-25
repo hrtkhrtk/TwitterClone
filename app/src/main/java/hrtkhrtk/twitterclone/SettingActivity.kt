@@ -58,22 +58,22 @@ class SettingActivity : AppCompatActivity(), DatabaseReference.CompletionListene
         } else {
             val userRef = mDataBaseReference.child("users").child(user!!.uid)
             userRef.addListenerForSingleValueEvent(
-                object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        val data = snapshot.value as Map<*, *>?
-                        //saveName(data!!["name"] as String)
-                        nicknameText.setText(data!!["nickname"] as String)
-                        //selfIntroductionText.setText(data["self_introduction"] as String) // kotlin.TypeCastException: null cannot be cast to non-null type kotlin.String が出る
-                        selfIntroductionText.setText(data["self_introduction"] as String? ?: "")
-                        textEmail.setText(data["email"] as String)
-                        textIdForSearch.setText(data["id_for_search"] as String)
-                        textCreatedAt.setText(data["created_at"] as String)
-                        textStatus.setText(data["status"] as String)
-                        textAvailableTo.setText(data["available_to"] as String)
-                    }
+                    object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            val data = snapshot.value as Map<*, *>?
+                            //saveName(data!!["name"] as String)
+                            nicknameText.setText(data!!["nickname"] as String)
+                            //selfIntroductionText.setText(data["self_introduction"] as String) // kotlin.TypeCastException: null cannot be cast to non-null type kotlin.String が出る
+                            selfIntroductionText.setText(data["self_introduction"] as String? ?: "")
+                            textEmail.setText(data["email"] as String)
+                            textIdForSearch.setText(data["id_for_search"] as String)
+                            textCreatedAt.setText(data["created_at"] as String)
+                            textStatus.setText(data["status"] as String)
+                            textAvailableTo.setText(data["available_to"] as String)
+                        }
 
-                    override fun onCancelled(firebaseError: DatabaseError) {}
-                }
+                        override fun onCancelled(firebaseError: DatabaseError) {}
+                    }
             )
         }
 
@@ -101,7 +101,7 @@ class SettingActivity : AppCompatActivity(), DatabaseReference.CompletionListene
                     data["nickname"] = nickname
                     data["self_introduction"] = self_introduction
 
-                   // 添付画像を取得する
+                    // 添付画像を取得する
                     val drawableIconImageView = iconImageView.drawable as? BitmapDrawable
                     // 添付画像が設定されていれば画像を取り出してBASE64エンコードする
                     if (drawableIconImageView != null) {
@@ -128,9 +128,9 @@ class SettingActivity : AppCompatActivity(), DatabaseReference.CompletionListene
                     //userRef.setValue(data)
                     //userRef.setValue(data, this)
                     userRef.updateChildren(data as Map<String, String>, this)
-                                                  // Lesson8
-                                                  // 「保存する際はDatabaseReferenceクラスのsetValueを使いますが、今回は第2引数も指定しています。
-                                                  // 第2引数にはCompletionListenerクラスを指定します（今回はActivityがCompletionListenerクラスを実装している）。」
+                    // Lesson8
+                    // 「保存する際はDatabaseReferenceクラスのsetValueを使いますが、今回は第2引数も指定しています。
+                    // 第2引数にはCompletionListenerクラスを指定します（今回はActivityがCompletionListenerクラスを実装している）。」
                     progressBar.visibility = View.VISIBLE
 
                     // 変更した表示名をPreferenceに保存する
@@ -152,26 +152,26 @@ class SettingActivity : AppCompatActivity(), DatabaseReference.CompletionListene
         iconImageView.setOnClickListener { // 参考：Lesson4項目3.1「補足」
             //object : View.OnClickListener {
             //    override fun onClick(v: View?) {
-                    Log.d("test191125n01", "test191125n01")
-                    // パーミッションの許可状態を確認する
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                            Log.d("test191125n10", "test191125n10")
-                            // 許可されている
-                            //showChooser()
-                            showChooser(CHOOSER_REQUEST_CODE_01)
-                        } else {
-                            Log.d("test191125n11", "test191125n11")
-                            // 許可されていないので許可ダイアログを表示する
-                            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSIONS_REQUEST_CODE_01)
+            //Log.d("test191125n01", "test191125n01")
+            // パーミッションの許可状態を確認する
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    //Log.d("test191125n10", "test191125n10")
+                    // 許可されている
+                    //showChooser()
+                    showChooser(CHOOSER_REQUEST_CODE_01)
+                } else {
+                    //Log.d("test191125n11", "test191125n11")
+                    // 許可されていないので許可ダイアログを表示する
+                    requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSIONS_REQUEST_CODE_01)
 
-                            //return
-                        }
-                    } else {
-                        Log.d("test191125n12", "test191125n12")
-                        //showChooser()
-                        showChooser(CHOOSER_REQUEST_CODE_01)
-                    }
+                    //return
+                }
+            } else {
+                //Log.d("test191125n12", "test191125n12")
+                //showChooser()
+                showChooser(CHOOSER_REQUEST_CODE_01)
+            }
             //    }
             //}
         }
@@ -181,23 +181,23 @@ class SettingActivity : AppCompatActivity(), DatabaseReference.CompletionListene
         backgroundImageView.setOnClickListener { // 参考：Lesson4項目3.1「補足」
             //object : View.OnClickListener {
             //    override fun onClick(v: View?) {
-                    Log.d("test191125n02", "test191125n02")
-                    // パーミッションの許可状態を確認する
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                            // 許可されている
-                            //showChooser()
-                            showChooser(CHOOSER_REQUEST_CODE_02)
-                        } else {
-                            // 許可されていないので許可ダイアログを表示する
-                            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSIONS_REQUEST_CODE_02)
+            //Log.d("test191125n02", "test191125n02")
+            // パーミッションの許可状態を確認する
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    // 許可されている
+                    //showChooser()
+                    showChooser(CHOOSER_REQUEST_CODE_02)
+                } else {
+                    // 許可されていないので許可ダイアログを表示する
+                    requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSIONS_REQUEST_CODE_02)
 
-                            //return
-                        }
-                    } else {
-                        //showChooser()
-                        showChooser(CHOOSER_REQUEST_CODE_02)
-                    }
+                    //return
+                }
+            } else {
+                //showChooser()
+                showChooser(CHOOSER_REQUEST_CODE_02)
+            }
             //    }
             //}
         }
@@ -311,9 +311,9 @@ class SettingActivity : AppCompatActivity(), DatabaseReference.CompletionListene
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             PERMISSIONS_REQUEST_CODE_01 -> {
-                Log.d("test191125n20", "test191125n20")
+                //Log.d("test191125n20", "test191125n20")
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d("test191125n21", "test191125n21")
+                    //Log.d("test191125n21", "test191125n21")
                     // ユーザーが許可したとき
                     showChooser(CHOOSER_REQUEST_CODE_01)
                 }
