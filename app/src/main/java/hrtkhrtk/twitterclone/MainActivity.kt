@@ -27,30 +27,101 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mDatabaseReference: DatabaseReference
     private lateinit var mListView: ListView
     private lateinit var mPostArrayList: ArrayList<Post>
+    private lateinit var mFollowingsListWithCurrentUser: ArrayList<String>
     private lateinit var mAdapter: PostsListAdapter
 
-    private var mFollowingsListRef: DatabaseReference? = null
+    //private var mFollowingsListRef: DatabaseReference? = null
 
     private val mEventListenerForFollowingsListRef = object : ValueEventListener {
         override fun onDataChange(dataSnapshot: DataSnapshot) {
-            // 仮置き
+            // TODO:
 
-            /*
-            val followings_list = dataSnapshot as Array<String>? // こんなんで大丈夫？ // 空（null）もあり得る // 参考：Lesson3項目5.7「配列」
-            if (followings_list != null) {
+            Log.d("test191126n30", "test191126n30")
+
+            // 仮置き
+            //val followings_list = dataSnapshot as Array<String>? // こんなんで大丈夫？ // 空（null）もあり得る // 参考：Lesson3項目5.7「配列」
+            //val followings_list = dataSnapshot as ArrayList<String>? ?: ArrayList<String>() // こんなんで大丈夫？ // 空（null）もあり得る // 参考：Lesson3項目5.7「配列」 // ダメっぽい
+
+            //val map = dataSnapshot.value as Map<String, String>?
+            //val key = dataSnapshot.key
+            val followings_list = dataSnapshot.value as ArrayList<String>? ?: ArrayList<String>()
+
+
+
+            //if (followings_list != null) { // ここは本来不要
                 for (following_user_id in followings_list) {
                     Log.d("test191126n01 user_id", following_user_id)
                     // following_user_idのuserのpostを表示する
                 }
+            //}
+
+            val user = FirebaseAuth.getInstance().currentUser!! // ここはログインユーザしか来ない
+            var followings_list_with_current_user = followings_list
+            followings_list_with_current_user.add(user.uid)
+
+            if (mFollowingsListWithCurrentUser == followings_list_with_current_user) { // これでいい？
+                // 何もしない
+                Log.d("test191126n20", "test191126n20")
+            } else {
+                Log.d("test191126n21", "test191126n21")
+                mFollowingsListWithCurrentUser = followings_list_with_current_user
+
+                for (user_id in mFollowingsListWithCurrentUser) {
+                    mDatabaseReference.child("posts").child(user_id).addChildEventListener(
+                        object : ChildEventListener {
+                            override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
+                                val map = dataSnapshot.value as Map<String, String>
+                                val text = map["text"] ?: ""
+                                val created_at = map["created_at"] ?: ""
+                                val favoriters_list = map["favoriters_list"] as java.util.ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
+                                val post_id = dataSnapshot.key!!
+
+                                var iconImageString: String? = null
+                                var nickname: String? = null
+
+                                FirebaseDatabase.getInstance().reference.child("users").child(user_id).addListenerForSingleValueEvent(
+                                    object : ValueEventListener {
+                                        override fun onDataChange(snapshot: DataSnapshot) {
+                                            val data = snapshot.value as Map<*, *>?
+                                            iconImageString = data!!["icon_image"] as String
+                                            nickname = data["nickname"] as String
+                                            Log.d("test191126n40 icon", iconImageString)
+                                            Log.d("test191126n40 nickname", nickname)
+
+                                            val bytes =
+                                                if (iconImageString!!.isNotEmpty()) {
+                                                    Base64.decode(iconImageString, Base64.DEFAULT)
+                                                } else {
+                                                    byteArrayOf()
+                                                }
+
+                                            val post = Post(bytes, nickname!!, text, created_at, favoriters_list, user_id, post_id)
+                                            mPostArrayList.add(post)
+                                            mAdapter.notifyDataSetChanged()
+                                        }
+
+                                        override fun onCancelled(firebaseError: DatabaseError) {}
+                                    }
+                                )
+                            }
+
+                            override fun onChildChanged(dataSnapshot: DataSnapshot, s: String?) {}
+
+                            override fun onChildRemoved(dataSnapshot: DataSnapshot) {}
+
+                            override fun onChildMoved(dataSnapshot: DataSnapshot, s: String?) {}
+
+                            override fun onCancelled(databaseError: DatabaseError) {}
+                        }
+                    )
+                }
+
             }
-            */
-            // TODO:
+
         }
 
         override fun onCancelled(firebaseError: DatabaseError) {}
     }
-
-
 
 
 
@@ -86,28 +157,28 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val user = FirebaseAuth.getInstance().currentUser
             val user_id = user!!.uid
             FirebaseDatabase.getInstance().reference.child("users").child(user.uid).addListenerForSingleValueEvent(
-                    object : ValueEventListener {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            val data = snapshot.value as Map<*, *>?
-                            iconImageString = data!!["icon_image"] as String
-                            nickname = data["nickname"] as String
-                            Log.d("test191126n10 icon", iconImageString)
-                            Log.d("test191126n10 nickname", nickname)
+                object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val data = snapshot.value as Map<*, *>?
+                        iconImageString = data!!["icon_image"] as String
+                        nickname = data["nickname"] as String
+                        Log.d("test191126n10 icon", iconImageString)
+                        Log.d("test191126n10 nickname", nickname)
 
-                            val bytes =
-                                    if (iconImageString!!.isNotEmpty()) {
-                                        Base64.decode(iconImageString, Base64.DEFAULT)
-                                    } else {
-                                        byteArrayOf()
-                                    }
+                        val bytes =
+                            if (iconImageString!!.isNotEmpty()) {
+                                Base64.decode(iconImageString, Base64.DEFAULT)
+                            } else {
+                                byteArrayOf()
+                            }
 
-                            val post = Post(bytes, nickname!!, text, created_at, favoriters_list, user_id, post_id)
-                            mPostArrayList.add(post)
-                            mAdapter.notifyDataSetChanged()
-                        }
-
-                        override fun onCancelled(firebaseError: DatabaseError) {}
+                        val post = Post(bytes, nickname!!, text, created_at, favoriters_list, user_id, post_id)
+                        mPostArrayList.add(post)
+                        mAdapter.notifyDataSetChanged()
                     }
+
+                    override fun onCancelled(firebaseError: DatabaseError) {}
+                }
             )
 
             /*
@@ -176,6 +247,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mListView = findViewById(R.id.listView)
         mAdapter = PostsListAdapter(this)
         mPostArrayList = ArrayList<Post>()
+        mFollowingsListWithCurrentUser = ArrayList<String>()
         mAdapter.notifyDataSetChanged()
     }
 
@@ -240,7 +312,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mAdapter.setPostArrayList(mPostArrayList)
             mListView.adapter = mAdapter
 
-            if (id == R.id.nav_my_posts) {
+
+            if (id == R.id.nav_posts) {
+                // この中は仮置き // TODO:
+
+                // ログイン済みのユーザーを取得する
+                val user = FirebaseAuth.getInstance().currentUser
+
+                // ログインしていなければログイン画面に遷移させる
+                if (user == null) {
+                    val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                    startActivity(intent)
+                }
+                else {
+                    // removeいる？
+                    // remove↓これで大丈夫？ // TODO:
+                    //mDatabaseReference.child("users").child(user.uid).child("followings_list").removeEventListener(mEventListenerForFollowingsListRef)
+                    mDatabaseReference.child("users").child(user.uid).child("followings_list").addValueEventListener(mEventListenerForFollowingsListRef)
+                }
+            } else if (id == R.id.nav_my_posts) {
                 // この中は仮置き // TODO:
 
                 // ログイン済みのユーザーを取得する
@@ -253,10 +343,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 else {
                     //mDatabaseReference.child("posts").child(user.uid)!!.addValueEventListener(mEventListenerForMyPosts)
-                    mDatabaseReference.child("posts").child(user.uid)!!.addChildEventListener(mEventListenerForMyPosts)
+                    // removeいる？
+                    // remove↓これで大丈夫？ // TODO:
+                    //mDatabaseReference.child("posts").child(user.uid).removeEventListener(mEventListenerForMyPosts)
+                    mDatabaseReference.child("posts").child(user.uid).addChildEventListener(mEventListenerForMyPosts)
                 }
-
-
             }
 
         }
