@@ -351,6 +351,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
 
         }
+        else if ((id == R.id.nav_search_users) || (id == R.id.nav_followings_list) || (id == R.id.nav_followers_list)) {
+            if (id == R.id.nav_search_users) {
+                val intent = Intent(this@MainActivity, UsersListActivity::class.java)
+                intent.putExtra("id", id)
+                startActivity(intent)
+            }
+        }
+
 
         return true
     }

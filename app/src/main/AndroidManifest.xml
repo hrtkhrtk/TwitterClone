@@ -28,7 +28,8 @@
         <activity android:name=".PurchasingActivity" />
         <activity android:name=".PurchasingCompleteActivity" />
         <activity android:name=".RegisteringActivity" />
-        <activity android:name=".PostSendActivity"></activity>
+        <activity android:name=".PostSendActivity" />
+        <activity android:name=".UsersListActivity"></activity>
     </application>
 
 </manifest>
