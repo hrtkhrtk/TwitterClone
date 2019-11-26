@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mDatabaseReference: DatabaseReference
     private lateinit var mListView: ListView
     private lateinit var mPostArrayList: ArrayList<Post>
-    private lateinit var mFollowingsListWithCurrentUser: ArrayList<String>
+    //private lateinit var mFollowingsListWithCurrentUser: ArrayList<String>
     private lateinit var mAdapter: PostsListAdapter
 
     //private var mFollowingsListRef: DatabaseReference? = null
@@ -46,27 +46,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             //val key = dataSnapshot.key
             val followings_list = dataSnapshot.value as ArrayList<String>? ?: ArrayList<String>()
 
-
-
-            //if (followings_list != null) { // ここは本来不要
-                for (following_user_id in followings_list) {
-                    Log.d("test191126n01 user_id", following_user_id)
-                    // following_user_idのuserのpostを表示する
-                }
-            //}
-
             val user = FirebaseAuth.getInstance().currentUser!! // ここはログインユーザしか来ない
             var followings_list_with_current_user = followings_list
             followings_list_with_current_user.add(user.uid)
 
-            if (mFollowingsListWithCurrentUser == followings_list_with_current_user) { // これでいい？
-                // 何もしない
-                Log.d("test191126n20", "test191126n20")
-            } else {
-                Log.d("test191126n21", "test191126n21")
-                mFollowingsListWithCurrentUser = followings_list_with_current_user
+            //if (mFollowingsListWithCurrentUser == followings_list_with_current_user) { // これでいい？
+            //    // 何もしない
+            //    Log.d("test191126n20", "test191126n20")
+            //} else {
+            //    Log.d("test191126n21", "test191126n21")
+            //    mFollowingsListWithCurrentUser = followings_list_with_current_user
 
-                for (user_id in mFollowingsListWithCurrentUser) {
+            //    for (user_id in mFollowingsListWithCurrentUser) {
+                for (user_id in followings_list_with_current_user) {
                     mDatabaseReference.child("posts").child(user_id).addChildEventListener(
                         object : ChildEventListener {
                             override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
@@ -85,8 +77,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                             val data = snapshot.value as Map<*, *>?
                                             iconImageString = data!!["icon_image"] as String
                                             nickname = data["nickname"] as String
-                                            Log.d("test191126n40 icon", iconImageString)
-                                            Log.d("test191126n40 nickname", nickname)
+                                            //Log.d("test191126n40 icon", iconImageString)
+                                            //Log.d("test191126n40 nickname", nickname)
 
                                             val bytes =
                                                 if (iconImageString!!.isNotEmpty()) {
@@ -116,7 +108,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     )
                 }
 
-            }
+            //}
 
         }
 
@@ -162,8 +154,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         val data = snapshot.value as Map<*, *>?
                         iconImageString = data!!["icon_image"] as String
                         nickname = data["nickname"] as String
-                        Log.d("test191126n10 icon", iconImageString)
-                        Log.d("test191126n10 nickname", nickname)
+                        //Log.d("test191126n10 icon", iconImageString)
+                        //Log.d("test191126n10 nickname", nickname)
 
                         val bytes =
                             if (iconImageString!!.isNotEmpty()) {
@@ -247,7 +239,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mListView = findViewById(R.id.listView)
         mAdapter = PostsListAdapter(this)
         mPostArrayList = ArrayList<Post>()
-        mFollowingsListWithCurrentUser = ArrayList<String>()
+        //mFollowingsListWithCurrentUser = ArrayList<String>()
         mAdapter.notifyDataSetChanged()
     }
 
@@ -316,6 +308,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             if (id == R.id.nav_posts) {
                 // この中は仮置き // TODO:
 
+                Log.d("test191127n10", "test191127n10")
+
                 // ログイン済みのユーザーを取得する
                 val user = FirebaseAuth.getInstance().currentUser
 
@@ -325,6 +319,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     startActivity(intent)
                 }
                 else {
+                    Log.d("test191127n11", "test191127n11")
                     // removeいる？
                     // remove↓これで大丈夫？ // TODO:
                     //mDatabaseReference.child("users").child(user.uid).child("followings_list").removeEventListener(mEventListenerForFollowingsListRef)
@@ -356,6 +351,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val intent = Intent(this@MainActivity, UsersListActivity::class.java)
                 intent.putExtra("id", id)
                 startActivity(intent)
+            }
+            else if ((id == R.id.nav_followings_list) || (id == R.id.nav_followers_list)) {
+                // ログイン済みのユーザーを取得する
+                val user = FirebaseAuth.getInstance().currentUser
+
+                // ログインしていなければログイン画面に遷移させる
+                if (user == null) {
+                    val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                    startActivity(intent)
+                }
+                else {
+                    val intent = Intent(this@MainActivity, UsersListActivity::class.java)
+                    intent.putExtra("id", id)
+                    startActivity(intent)
+                }
             }
         }
 

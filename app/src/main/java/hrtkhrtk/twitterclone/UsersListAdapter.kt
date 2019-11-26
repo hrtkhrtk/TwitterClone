@@ -58,7 +58,9 @@ class UsersListAdapter(context: Context) : BaseAdapter() {
         selfIntroductionText.text = mUserArrayList[position].selfIntroduction
 
         val bytes = mUserArrayList[position].iconImage
+        //Log.d("test191127n03", "test191127n03")
         if (bytes.isNotEmpty()) {
+            //Log.d("test191127n04", "test191127n04")
             val image = BitmapFactory.decodeByteArray(bytes, 0, bytes.size).copy(Bitmap.Config.ARGB_8888, true)
             val iconImageView = convertView.findViewById<View>(R.id.iconImageView) as ImageView
             iconImageView.setImageBitmap(image)
@@ -159,7 +161,8 @@ class UsersListAdapter(context: Context) : BaseAdapter() {
                                             object : ValueEventListener {
                                                 override fun onDataChange(snapshot: DataSnapshot) {
                                                     val userData = snapshot.value as MutableMap<String, String>
-                                                    val existingFollowersListInFolloweeUser = userData["followers_list"] as ArrayList<String>
+                                                    //val existingFollowersListInFolloweeUser = userData["followers_list"] as ArrayList<String>
+                                                    val existingFollowersListInFolloweeUser = userData["followers_list"] as ArrayList<String>? ?: ArrayList<String>()
                                                     existingFollowersListInFolloweeUser.add(user.uid)
                                                     dataBaseReference.child("users").child(userId).child("followers_list").setValue(existingFollowersListInFolloweeUser)
                                                 }
@@ -172,15 +175,15 @@ class UsersListAdapter(context: Context) : BaseAdapter() {
                                         dataBaseReference.child("users").child(user.uid).child("followings_list").setValue(existingFollowingsListInCurrentUser)
 
                                         followeeUserRefInFollowButton.addListenerForSingleValueEvent(
-                                                object : ValueEventListener {
-                                                    override fun onDataChange(snapshot: DataSnapshot) {
-                                                        val userData = snapshot.value as MutableMap<String, String>
-                                                        val existingFollowersListInFolloweeUser = userData["followers_list"] as ArrayList<String>
-                                                        existingFollowersListInFolloweeUser.remove(user.uid)
-                                                        dataBaseReference.child("users").child(userId).child("followers_list").setValue(existingFollowersListInFolloweeUser)
-                                                    }
-                                                    override fun onCancelled(firebaseError: DatabaseError) {}
+                                            object : ValueEventListener {
+                                                override fun onDataChange(snapshot: DataSnapshot) {
+                                                    val userData = snapshot.value as MutableMap<String, String>
+                                                    val existingFollowersListInFolloweeUser = userData["followers_list"] as ArrayList<String>
+                                                    existingFollowersListInFolloweeUser.remove(user.uid)
+                                                    dataBaseReference.child("users").child(userId).child("followers_list").setValue(existingFollowersListInFolloweeUser)
                                                 }
+                                                override fun onCancelled(firebaseError: DatabaseError) {}
+                                            }
                                         )
                                     }
                                 }
