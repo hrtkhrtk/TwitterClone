@@ -86,17 +86,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val user = FirebaseAuth.getInstance().currentUser
             val user_id = user!!.uid
             FirebaseDatabase.getInstance().reference.child("users").child(user.uid).addListenerForSingleValueEvent(
-                object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        val data = snapshot.value as Map<*, *>?
-                        iconImageString = data!!["icon_image"] as String
-                        nickname = data["nickname"] as String
-                    }
+                    object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            val data = snapshot.value as Map<*, *>?
+                            iconImageString = data!!["icon_image"] as String
+                            nickname = data["nickname"] as String
+                            Log.d("test191126n10 icon", iconImageString)
+                            Log.d("test191126n10 nickname", nickname)
 
-                    override fun onCancelled(firebaseError: DatabaseError) {}
-                }
+                            val bytes =
+                                    if (iconImageString!!.isNotEmpty()) {
+                                        Base64.decode(iconImageString, Base64.DEFAULT)
+                                    } else {
+                                        byteArrayOf()
+                                    }
+
+                            val post = Post(bytes, nickname!!, text, created_at, favoriters_list, user_id, post_id)
+                            mPostArrayList.add(post)
+                            mAdapter.notifyDataSetChanged()
+                        }
+
+                        override fun onCancelled(firebaseError: DatabaseError) {}
+                    }
             )
 
+            /*
             val bytes =
                 if (iconImageString!!.isNotEmpty()) {
                     Base64.decode(iconImageString, Base64.DEFAULT)
@@ -107,6 +121,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val post = Post(bytes, nickname!!, text, created_at, favoriters_list, user_id, post_id)
             mPostArrayList.add(post)
             mAdapter.notifyDataSetChanged()
+            */
         }
 
         override fun onChildChanged(dataSnapshot: DataSnapshot, s: String?) {}
@@ -226,7 +241,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mListView.adapter = mAdapter
 
             if (id == R.id.nav_my_posts) {
-                // この中は仮置き
+                // この中は仮置き // TODO:
 
                 // ログイン済みのユーザーを取得する
                 val user = FirebaseAuth.getInstance().currentUser
@@ -237,8 +252,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     startActivity(intent)
                 }
                 else {
-                    //mDatabaseReference.child("post").child(user.uid)!!.addValueEventListener(mEventListenerForMyPosts)
-                    mDatabaseReference.child("post").child(user.uid)!!.addChildEventListener(mEventListenerForMyPosts)
+                    //mDatabaseReference.child("posts").child(user.uid)!!.addValueEventListener(mEventListenerForMyPosts)
+                    mDatabaseReference.child("posts").child(user.uid)!!.addChildEventListener(mEventListenerForMyPosts)
                 }
 
 
