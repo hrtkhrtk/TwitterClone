@@ -33,34 +33,7 @@ class UserDetailListAdapter(context: Context, private val mUserDetail: UserDetai
         mLayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     }
 
-    override fun getCount(): Int { // TODO: （こんなのでいいか確認）
-        /*
-        var total = 1
-        //var flag = 0 // これでいい？
-
-        FirebaseDatabase.getInstance().reference.child("posts").child(mUserId).addListenerForSingleValueEvent( // SingleValueEventでいい？
-            object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val data = snapshot.value as HashMap<String, String>? ?: HashMap<String, String>()
-                    Log.d("test191127n10", data.size.toString())
-                    //return (1 + data.size)
-                    total = (1 + data.size)
-                    //flag = 1
-                }
-
-                override fun onCancelled(firebaseError: DatabaseError) {
-                    Log.d("test191127n11", 1.toString())
-                    //return 1 // エラーが起こった時は、postは表示しない感じでいいと思う
-                    total = 1 // エラーが起こった時は、postは表示しない感じでいいと思う
-                    //flag = 1
-                }
-            }
-        )
-
-        Log.d("test191127n12", total.toString())
-        return total
-        */
-
+    override fun getCount(): Int {
         return (1 + mPostArrayList.size)
     }
 
@@ -146,10 +119,6 @@ class UserDetailListAdapter(context: Context, private val mUserDetail: UserDetai
                 // ログインしていない場合は何もしない
                 //Snackbar.make(v, "ログインしていません", Snackbar.LENGTH_LONG).show()
             } else if (user.uid != userId) { // 自分じゃなければ
-                //Log.d("test191127n03", user.uid)
-                //Log.d("test191127n04", userId)
-                //Log.d("test191127n05", (user.uid != userId).toString())
-
                 val followButton = convertView.findViewById<Button>(R.id.followButton) // as Buttonを付けるとエラーになる
 
                 val dataBaseReference = FirebaseDatabase.getInstance().reference

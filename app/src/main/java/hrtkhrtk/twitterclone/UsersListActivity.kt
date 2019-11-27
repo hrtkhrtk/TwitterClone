@@ -141,8 +141,8 @@ class UsersListActivity : AppCompatActivity() {
                         val id_for_search = data_n01["id_for_search"] as String
                         val self_introduction = data_n01["self_introduction"] as String
                         val created_at = data_n01["created_at"] as String
-                        val followings_list = data_n01["followings_list"] as ArrayList<String>
-                        val followers_list = data_n01["followers_list"] as ArrayList<String>
+                        val followings_list = data_n01["followings_list"] as ArrayList<String>? ?: ArrayList<String>()
+                        val followers_list = data_n01["followers_list"] as ArrayList<String>? ?: ArrayList<String>()
 
                         val userDetail = UserDetail(bytesForBackgroundImage, bytesForIconImage, nickname, id_for_search, self_introduction, created_at, followings_list, followers_list, userId)
 
