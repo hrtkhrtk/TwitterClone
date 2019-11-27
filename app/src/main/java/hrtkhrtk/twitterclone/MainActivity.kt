@@ -118,21 +118,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     private val mEventListenerForMyPosts = object : ChildEventListener { // 仮置き // TODO:
-        /*
-        // ログイン済みのユーザーを取得する
-        val user = FirebaseAuth.getInstance().currentUser // 外置きして大丈夫？
-        val userRef = FirebaseDatabase.getInstance().reference.child("users").child(user!!.uid)
-        userRef.addListenerForSingleValueEvent(
-            object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-
-                }
-
-                override fun onCancelled(firebaseError: DatabaseError) {}
-            }
-        )
-        */
-
         override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
             val map = dataSnapshot.value as Map<String, String>
             val text = map["text"] ?: ""
@@ -142,8 +127,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             //val iconImage: ByteArray
             //val nickname: String
-            var iconImageString: String? = null
-            var nickname: String? = null
+            //var iconImageString: String? = null
+            //var nickname: String? = null
 
             // ログイン済みのユーザーを取得する
             val user = FirebaseAuth.getInstance().currentUser
@@ -151,20 +136,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             FirebaseDatabase.getInstance().reference.child("users").child(user.uid).addListenerForSingleValueEvent(
                 object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        val data = snapshot.value as Map<*, *>?
-                        iconImageString = data!!["icon_image"] as String
-                        nickname = data["nickname"] as String
-                        //Log.d("test191126n10 icon", iconImageString)
-                        //Log.d("test191126n10 nickname", nickname)
+                        //val data = snapshot.value as Map<*, *>?
+                        val data = snapshot.value as Map<String, String> // 必ず存在
+                        val iconImageString = data["icon_image"] as String
+                        val nickname = data["nickname"] as String
 
                         val bytes =
-                            if (iconImageString!!.isNotEmpty()) {
+                            if (iconImageString.isNotEmpty()) {
                                 Base64.decode(iconImageString, Base64.DEFAULT)
                             } else {
                                 byteArrayOf()
                             }
 
-                        val post = Post(bytes, nickname!!, text, created_at, favoriters_list, user_id, post_id)
+                        val post = Post(bytes, nickname, text, created_at, favoriters_list, user_id, post_id)
                         mPostArrayList.add(post)
                         mAdapter.notifyDataSetChanged()
                     }
@@ -172,19 +156,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     override fun onCancelled(firebaseError: DatabaseError) {}
                 }
             )
-
-            /*
-            val bytes =
-                if (iconImageString!!.isNotEmpty()) {
-                    Base64.decode(iconImageString, Base64.DEFAULT)
-                } else {
-                    byteArrayOf()
-                }
-
-            val post = Post(bytes, nickname!!, text, created_at, favoriters_list, user_id, post_id)
-            mPostArrayList.add(post)
-            mAdapter.notifyDataSetChanged()
-            */
         }
 
         override fun onChildChanged(dataSnapshot: DataSnapshot, s: String?) {}
@@ -277,23 +248,39 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
 
+        /*
         if (id == R.id.nav_posts) {
             mToolbar.title = "posts"
         } else if (id == R.id.nav_search_posts) {
             mToolbar.title = "search_posts"
-        } else if (id == R.id.nav_search_users) {
-            mToolbar.title = "search_users"
-        } else if (id == R.id.nav_followings_list) {
-            mToolbar.title = "followings_list"
-        } else if (id == R.id.nav_followers_list) {
-            mToolbar.title = "followers_list"
+        //} else if (id == R.id.nav_search_users) {
+        //    mToolbar.title = "search_users"
+        //} else if (id == R.id.nav_followings_list) {
+        //    mToolbar.title = "followings_list"
+        //} else if (id == R.id.nav_followers_list) {
+        //    mToolbar.title = "followers_list"
         } else if (id == R.id.nav_favorites_list) {
             mToolbar.title = "favorites_list"
         } else if (id == R.id.nav_my_posts) {
             mToolbar.title = "my_posts"
         } else if (id == R.id.nav_policy) {
-            mToolbar.title = "policy"
+            //mToolbar.title = "policy"
+            val intent = Intent(this@MainActivity, PolicyActivity::class.java)
+            startActivity(intent)
         }
+        */
+        if (id == R.id.nav_search_posts) {
+            mToolbar.title = "search_posts"
+        } else if (id == R.id.nav_favorites_list) {
+            mToolbar.title = "favorites_list"
+        } else if (id == R.id.nav_policy) {
+            //mToolbar.title = "policy"
+            val intent = Intent(this@MainActivity, PolicyActivity::class.java)
+            startActivity(intent)
+        }
+
+
+
 
         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
         drawer.closeDrawer(GravityCompat.START)
@@ -306,6 +293,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
             if (id == R.id.nav_posts) {
+                mToolbar.title = "posts"
                 // この中は仮置き // TODO:
 
                 Log.d("test191127n10", "test191127n10")
@@ -326,6 +314,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     mDatabaseReference.child("users").child(user.uid).child("followings_list").addValueEventListener(mEventListenerForFollowingsListRef)
                 }
             } else if (id == R.id.nav_my_posts) {
+                mToolbar.title = "my_posts"
                 // この中は仮置き // TODO:
 
                 // ログイン済みのユーザーを取得する

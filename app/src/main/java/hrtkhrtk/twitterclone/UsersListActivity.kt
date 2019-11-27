@@ -1,18 +1,24 @@
 package hrtkhrtk.twitterclone
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.content.Intent
+import android.support.design.widget.Snackbar
 import android.support.v7.widget.Toolbar
 import android.util.Base64
 import android.util.Log
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.ListView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 
+import kotlinx.android.synthetic.main.activity_users_list.*
+
 class UsersListActivity : AppCompatActivity() {
 
-    private lateinit var mToolbar: Toolbar
+    //private lateinit var mToolbar: Toolbar
 
     private lateinit var mDatabaseReference: DatabaseReference
     private lateinit var mListView: ListView
@@ -99,7 +105,7 @@ class UsersListActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_users_list)
-        mToolbar = findViewById(R.id.toolbar)
+        //mToolbar = findViewById(R.id.toolbar)
         //setSupportActionBar(mToolbar)
 
         // Firebase
@@ -185,6 +191,86 @@ class UsersListActivity : AppCompatActivity() {
 
 
 
+        searchButton.setOnClickListener { v ->
+            // キーボードが出てたら閉じる
+            val im = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            im.hideSoftInputFromWindow(v.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+
+            val searchText = searchWindow.text.toString()
+
+            if (searchText.isEmpty()) {
+                Snackbar.make(v, "入力して下さい", Snackbar.LENGTH_LONG).show()
+
+                //これがいるのか不明
+                // Userのリストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
+                mUserArrayList.clear()
+                mAdapter.setUserArrayList(mUserArrayList)
+                mListView.adapter = mAdapter
+
+                title = "user一覧"
+
+                mDatabaseReference.child("users").addChildEventListener(mEventListenerForUsersList)
+            } else {
+                //これがいるのか不明
+                // Userのリストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
+                mUserArrayList.clear()
+                mAdapter.setUserArrayList(mUserArrayList)
+                mListView.adapter = mAdapter
+                //mAdapter.notifyDataSetChanged()
+
+                title = "検索結果"
+
+                mDatabaseReference.child("id_for_search_list").addListenerForSingleValueEvent(
+                    object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            val data = snapshot.value as HashMap<String, String>? ?: HashMap<String, String>() // ここは存在するとみなしていいと思うが安全のため
+
+                            if (data.keys.contains(searchText)) { // 含まれていれば
+                                val data_02 = data[searchText] as Map<String, String>
+                                val user_id = data_02["user_id"]!!
+
+                                mDatabaseReference.child("users").child(user_id).addListenerForSingleValueEvent(
+                                    object : ValueEventListener {
+                                        override fun onDataChange(snapshot: DataSnapshot) {
+                                            //val map = dataSnapshot.value as Map<String, String>
+                                            val map = snapshot.value as Map<String, String>
+
+                                            val iconImageString = map["icon_image"] ?: ""
+                                            val nickname = map["nickname"] ?: ""
+                                            val idForSearch = map["id_for_search"] ?: ""
+                                            val selfIntroduction = map["self_introduction"] ?: ""
+                                            //val userId = dataSnapshot.key!!
+                                            val userId = snapshot.key!!
+
+                                            val bytes =
+                                                if (iconImageString.isNotEmpty()) {
+                                                    Base64.decode(iconImageString, Base64.DEFAULT)
+                                                } else {
+                                                    byteArrayOf()
+                                                }
+
+                                            val userClassInstance = User(bytes, nickname, idForSearch, selfIntroduction, userId)
+                                            mUserArrayList.add(userClassInstance)
+                                            mAdapter.notifyDataSetChanged()
+                                        }
+                                        override fun onCancelled(firebaseError: DatabaseError) {}
+                                    }
+                                )
+                            } else { // 含まれていなければ
+                                Snackbar.make(v, "見つかりませんでした", Snackbar.LENGTH_LONG).show()
+                            }
+                        }
+
+                        override fun onCancelled(firebaseError: DatabaseError) {}
+                    }
+                )
+            }
+        }
+
+
+
+
+
         val extras = intent.extras
         val id = extras.get("id") as Int
 
@@ -195,16 +281,24 @@ class UsersListActivity : AppCompatActivity() {
         mListView.adapter = mAdapter
 
         if (id == R.id.nav_search_users) {
-            mToolbar.title = "search_users（ひとまずuser一覧）" // TODO:
+            //mToolbar.title = "search_users（ひとまずuser一覧）" // TODO:
+            title = "最初に表示されるのは一覧"
+
+            searchWindow.visibility = View.VISIBLE
+            searchButton.visibility = View.VISIBLE
 
             mDatabaseReference.child("users").addChildEventListener(mEventListenerForUsersList)
         }
         else if (id == R.id.nav_followings_list) {
+            title = "followings_list"
+
             // ログイン済みのユーザーを取得する
             val user = FirebaseAuth.getInstance().currentUser!! // ログインしていないとここには来ない
             mDatabaseReference.child("users").child(user.uid).child("followings_list").addValueEventListener(mEventListenerForFollowingsFollowersListRef)
         }
         else if (id == R.id.nav_followers_list) {
+            title = "followers_list"
+
             // ログイン済みのユーザーを取得する
             val user = FirebaseAuth.getInstance().currentUser!! // ログインしていないとここには来ない
             mDatabaseReference.child("users").child(user.uid).child("followers_list").addValueEventListener(mEventListenerForFollowingsFollowersListRef)
