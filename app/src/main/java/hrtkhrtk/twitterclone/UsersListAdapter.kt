@@ -127,7 +127,7 @@ class UsersListAdapter(context: Context) : BaseAdapter() {
 
                     var userDataInFollowButton : MutableMap<String, String>? = null
 
-                    currentUserRef.addListenerForSingleValueEvent(
+                    currentUserRefInFollowButton.addListenerForSingleValueEvent(
                         object : ValueEventListener {
                             override fun onDataChange(snapshot: DataSnapshot) {
                                 userDataInFollowButton = snapshot.value as MutableMap<String, String>

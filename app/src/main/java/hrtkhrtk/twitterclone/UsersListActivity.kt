@@ -113,7 +113,8 @@ class UsersListActivity : AppCompatActivity() {
 
 
         mListView.setOnItemClickListener { parent, view, position, id ->
-            // Questionのインスタンスを渡して質問詳細画面を起動する
+            Log.d("test191127n20", "test191127n20")
+
             val intent = Intent(this@UsersListActivity, UserDetailActivity::class.java)
 
             val userId = mUserArrayList[position].userId
