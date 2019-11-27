@@ -132,7 +132,7 @@ class UsersListAdapter(context: Context) : BaseAdapter() {
                             override fun onDataChange(snapshot: DataSnapshot) {
                                 userDataInFollowButton = snapshot.value as MutableMap<String, String>
 
-                                if (userDataInFollowButton!!["followings_list"] == null) { // リストに入っていない
+                                if (userDataInFollowButton!!["followings_list"] == null) { // リストに入っていない（リストがない）
                                     val existingFollowingsListInCurrentUser = ArrayList<String>()
                                     existingFollowingsListInCurrentUser.add(userId)
                                     dataBaseReference.child("users").child(user.uid).child("followings_list").setValue(existingFollowingsListInCurrentUser)
