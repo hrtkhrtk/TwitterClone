@@ -36,28 +36,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         override fun onDataChange(dataSnapshot: DataSnapshot) {
             // TODO:
 
-            Log.d("test191126n30", "test191126n30")
-
             // 仮置き
-            //val followings_list = dataSnapshot as Array<String>? // こんなんで大丈夫？ // 空（null）もあり得る // 参考：Lesson3項目5.7「配列」
-            //val followings_list = dataSnapshot as ArrayList<String>? ?: ArrayList<String>() // こんなんで大丈夫？ // 空（null）もあり得る // 参考：Lesson3項目5.7「配列」 // ダメっぽい
-
-            //val map = dataSnapshot.value as Map<String, String>?
-            //val key = dataSnapshot.key
             val followings_list = dataSnapshot.value as ArrayList<String>? ?: ArrayList<String>()
 
             val user = FirebaseAuth.getInstance().currentUser!! // ここはログインユーザしか来ない
             var followings_list_with_current_user = followings_list
             followings_list_with_current_user.add(user.uid)
 
-            //if (mFollowingsListWithCurrentUser == followings_list_with_current_user) { // これでいい？
-            //    // 何もしない
-            //    Log.d("test191126n20", "test191126n20")
-            //} else {
-            //    Log.d("test191126n21", "test191126n21")
-            //    mFollowingsListWithCurrentUser = followings_list_with_current_user
-
-            //    for (user_id in mFollowingsListWithCurrentUser) {
                 for (user_id in followings_list_with_current_user) {
                     mDatabaseReference.child("posts").child(user_id).addChildEventListener(
                         object : ChildEventListener {
@@ -125,18 +110,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val favoriters_list = map["favoriters_list"] as java.util.ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
             val post_id = dataSnapshot.key!!
 
-            //val iconImage: ByteArray
-            //val nickname: String
-            //var iconImageString: String? = null
-            //var nickname: String? = null
-
             // ログイン済みのユーザーを取得する
             val user = FirebaseAuth.getInstance().currentUser
             val user_id = user!!.uid
             FirebaseDatabase.getInstance().reference.child("users").child(user.uid).addListenerForSingleValueEvent(
                 object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        //val data = snapshot.value as Map<*, *>?
                         val data = snapshot.value as Map<String, String> // 必ず存在
                         val iconImageString = data["icon_image"] as String
                         val nickname = data["nickname"] as String
@@ -248,27 +227,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
 
-        /*
-        if (id == R.id.nav_posts) {
-            mToolbar.title = "posts"
-        } else if (id == R.id.nav_search_posts) {
-            mToolbar.title = "search_posts"
-        //} else if (id == R.id.nav_search_users) {
-        //    mToolbar.title = "search_users"
-        //} else if (id == R.id.nav_followings_list) {
-        //    mToolbar.title = "followings_list"
-        //} else if (id == R.id.nav_followers_list) {
-        //    mToolbar.title = "followers_list"
-        } else if (id == R.id.nav_favorites_list) {
-            mToolbar.title = "favorites_list"
-        } else if (id == R.id.nav_my_posts) {
-            mToolbar.title = "my_posts"
-        } else if (id == R.id.nav_policy) {
-            //mToolbar.title = "policy"
-            val intent = Intent(this@MainActivity, PolicyActivity::class.java)
-            startActivity(intent)
-        }
-        */
+
         if (id == R.id.nav_search_posts) {
             mToolbar.title = "search_posts"
         } else if (id == R.id.nav_favorites_list) {
@@ -278,8 +237,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val intent = Intent(this@MainActivity, PolicyActivity::class.java)
             startActivity(intent)
         }
-
-
 
 
         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
