@@ -364,6 +364,20 @@ class UserDetailListAdapter(context: Context, private val mUserDetail: UserDetai
                                                 data.put("post_id", targetPostForShowing.postId)
                                                 existingFavoriteList.add(data)
                                                 dataBaseReference.child("users").child(user.uid).child("favorites_list").setValue(existingFavoriteList)
+
+
+                                                dataBaseReference.child("posts").child(targetPostForShowing.userId).child(targetPostForShowing.postId).addListenerForSingleValueEvent(
+                                                        object : ValueEventListener {
+                                                            override fun onDataChange(snapshotInPostListener: DataSnapshot) {
+                                                                val postData = snapshotInPostListener.value as MutableMap<String, String> // postDataは必ず存在
+                                                                val existingFavoritersListInPost = postData["favoriters_list"] as ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
+                                                                existingFavoritersListInPost.add(user.uid)
+                                                                dataBaseReference.child("posts").child(targetPostForShowing.userId).child(targetPostForShowing.postId).child("favoriters_list").setValue(existingFavoritersListInPost)
+                                                            }
+
+                                                            override fun onCancelled(firebaseErrorInPostListener: DatabaseError) {}
+                                                        }
+                                                )
                                             } else {
                                                 val existingFavoriteList = userData["favorites_list"] as ArrayList<MutableMap<String, String>>
                                                 val data = mutableMapOf<String, String>()
@@ -375,9 +389,35 @@ class UserDetailListAdapter(context: Context, private val mUserDetail: UserDetai
                                                 if (!(existingFavoriteList.contains(data))) { // 含まれなければ追加
                                                     existingFavoriteList.add(data)
                                                     dataBaseReference.child("users").child(user.uid).child("favorites_list").setValue(existingFavoriteList)
+
+                                                    dataBaseReference.child("posts").child(targetPostForShowing.userId).child(targetPostForShowing.postId).addListenerForSingleValueEvent(
+                                                            object : ValueEventListener {
+                                                                override fun onDataChange(snapshotInPostListener: DataSnapshot) {
+                                                                    val postData = snapshotInPostListener.value as MutableMap<String, String> // postDataは必ず存在
+                                                                    val existingFavoritersListInPost = postData["favoriters_list"] as ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
+                                                                    existingFavoritersListInPost.add(user.uid)
+                                                                    dataBaseReference.child("posts").child(targetPostForShowing.userId).child(targetPostForShowing.postId).child("favoriters_list").setValue(existingFavoritersListInPost)
+                                                                }
+
+                                                                override fun onCancelled(firebaseErrorInPostListener: DatabaseError) {}
+                                                            }
+                                                    )
                                                 } else { // 含まれていれば削除
                                                     existingFavoriteList.remove(data) // 参考：Lesson3項目11.3
                                                     dataBaseReference.child("users").child(user.uid).child("favorites_list").setValue(existingFavoriteList)
+
+                                                    dataBaseReference.child("posts").child(targetPostForShowing.userId).child(targetPostForShowing.postId).addListenerForSingleValueEvent(
+                                                            object : ValueEventListener {
+                                                                override fun onDataChange(snapshotInPostListener: DataSnapshot) {
+                                                                    val postData = snapshotInPostListener.value as MutableMap<String, String> // postDataは必ず存在
+                                                                    val existingFavoritersListInPost = postData["favoriters_list"] as ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
+                                                                    existingFavoritersListInPost.remove(user.uid)
+                                                                    dataBaseReference.child("posts").child(targetPostForShowing.userId).child(targetPostForShowing.postId).child("favoriters_list").setValue(existingFavoritersListInPost)
+                                                                }
+
+                                                                override fun onCancelled(firebaseErrorInPostListener: DatabaseError) {}
+                                                            }
+                                                    )
                                                 }
                                             }
                                         }

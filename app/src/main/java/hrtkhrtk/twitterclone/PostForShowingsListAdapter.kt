@@ -112,7 +112,7 @@ class PostForShowingsListAdapter(context: Context) : BaseAdapter() {
                                 //Log.d("test191127n33", "test191127n33")
                                 val userData = snapshot.value as MutableMap<String, String> // userDataは必ず存在する
                                 if (userData["favorites_list"] == null) { // リストに含まれない（リストがない）
-                                    Log.d("test191127n34", "test191127n34")
+                                    //Log.d("test191127n34", "test191127n34")
                                     favoriteButton.setBackgroundColor(Color.parseColor("#0000ff")); // 参考：https://seesaawiki.jp/w/moonlight_aska/d/%A5%D3%A5%E5%A1%BC%A4%CE%C7%D8%B7%CA%BF%A7%A4%F2%A4%AB%A4%A8%A4%EB
                                     favoriteButton.text = "fav"
                                 } else {
@@ -126,14 +126,14 @@ class PostForShowingsListAdapter(context: Context) : BaseAdapter() {
                                     data.put("post_id", targetPostForShowing.postId)
 
                                     if (!(existingFavoriteList.contains(data))) { // 含まれなければ
-                                        Log.d("test191127n36", "test191127n36")
-                                        Log.d("test191127n100", data["user_id"])
-                                        Log.d("test191127n101", data["post_id"])
+                                        //Log.d("test191127n36", "test191127n36")
+                                        //Log.d("test191127n100", data["user_id"])
+                                        //Log.d("test191127n101", data["post_id"])
                                         //val test = mPostForShowingArrayList
                                         favoriteButton.setBackgroundColor(Color.parseColor("#0000ff")); // 参考：https://seesaawiki.jp/w/moonlight_aska/d/%A5%D3%A5%E5%A1%BC%A4%CE%C7%D8%B7%CA%BF%A7%A4%F2%A4%AB%A4%A8%A4%EB
                                         favoriteButton.text = "fav"
                                     } else { // 含まれていれば
-                                        Log.d("test191127n37", "test191127n37")
+                                        //Log.d("test191127n37", "test191127n37")
                                         favoriteButton.setBackgroundColor(Color.parseColor("#ff0000")); // 参考：https://seesaawiki.jp/w/moonlight_aska/d/%A5%D3%A5%E5%A1%BC%A4%CE%C7%D8%B7%CA%BF%A7%A4%F2%A4%AB%A4%A8%A4%EB
                                         favoriteButton.text = "unfav"
                                     }
@@ -171,6 +171,20 @@ class PostForShowingsListAdapter(context: Context) : BaseAdapter() {
                                             data.put("post_id", targetPostForShowing.postId)
                                             existingFavoriteList.add(data)
                                             dataBaseReference.child("users").child(user.uid).child("favorites_list").setValue(existingFavoriteList)
+
+
+                                            dataBaseReference.child("posts").child(targetPostForShowing.userId).child(targetPostForShowing.postId).addListenerForSingleValueEvent(
+                                                    object : ValueEventListener {
+                                                        override fun onDataChange(snapshotInPostListener: DataSnapshot) {
+                                                            val postData = snapshotInPostListener.value as MutableMap<String, String> // postDataは必ず存在
+                                                            val existingFavoritersListInPost = postData["favoriters_list"] as ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
+                                                            existingFavoritersListInPost.add(user.uid)
+                                                            dataBaseReference.child("posts").child(targetPostForShowing.userId).child(targetPostForShowing.postId).child("favoriters_list").setValue(existingFavoritersListInPost)
+                                                        }
+
+                                                        override fun onCancelled(firebaseErrorInPostListener: DatabaseError) {}
+                                                    }
+                                            )
                                         } else {
                                             val existingFavoriteList = userData["favorites_list"] as ArrayList<MutableMap<String, String>>
                                             val data = mutableMapOf<String, String>()
@@ -182,9 +196,35 @@ class PostForShowingsListAdapter(context: Context) : BaseAdapter() {
                                             if (!(existingFavoriteList.contains(data))) { // 含まれなければ追加
                                                 existingFavoriteList.add(data)
                                                 dataBaseReference.child("users").child(user.uid).child("favorites_list").setValue(existingFavoriteList)
+
+                                                dataBaseReference.child("posts").child(targetPostForShowing.userId).child(targetPostForShowing.postId).addListenerForSingleValueEvent(
+                                                        object : ValueEventListener {
+                                                            override fun onDataChange(snapshotInPostListener: DataSnapshot) {
+                                                                val postData = snapshotInPostListener.value as MutableMap<String, String> // postDataは必ず存在
+                                                                val existingFavoritersListInPost = postData["favoriters_list"] as ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
+                                                                existingFavoritersListInPost.add(user.uid)
+                                                                dataBaseReference.child("posts").child(targetPostForShowing.userId).child(targetPostForShowing.postId).child("favoriters_list").setValue(existingFavoritersListInPost)
+                                                            }
+
+                                                            override fun onCancelled(firebaseErrorInPostListener: DatabaseError) {}
+                                                        }
+                                                )
                                             } else { // 含まれていれば削除
                                                 existingFavoriteList.remove(data) // 参考：Lesson3項目11.3
                                                 dataBaseReference.child("users").child(user.uid).child("favorites_list").setValue(existingFavoriteList)
+
+                                                dataBaseReference.child("posts").child(targetPostForShowing.userId).child(targetPostForShowing.postId).addListenerForSingleValueEvent(
+                                                        object : ValueEventListener {
+                                                            override fun onDataChange(snapshotInPostListener: DataSnapshot) {
+                                                                val postData = snapshotInPostListener.value as MutableMap<String, String> // postDataは必ず存在
+                                                                val existingFavoritersListInPost = postData["favoriters_list"] as ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
+                                                                existingFavoritersListInPost.remove(user.uid)
+                                                                dataBaseReference.child("posts").child(targetPostForShowing.userId).child(targetPostForShowing.postId).child("favoriters_list").setValue(existingFavoritersListInPost)
+                                                            }
+
+                                                            override fun onCancelled(firebaseErrorInPostListener: DatabaseError) {}
+                                                        }
+                                                )
                                             }
                                         }
                                     }
