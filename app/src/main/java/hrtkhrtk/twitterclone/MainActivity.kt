@@ -26,9 +26,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private lateinit var mDatabaseReference: DatabaseReference
     private lateinit var mListView: ListView
-    private lateinit var mPostArrayList: ArrayList<Post>
+    //private lateinit var mPostArrayList: ArrayList<Post>
+    private lateinit var mPostForShowingArrayList: ArrayList<PostForShowing>
     //private lateinit var mFollowingsListWithCurrentUser: ArrayList<String>
-    private lateinit var mAdapter: PostsListAdapter
+    //private lateinit var mAdapter: PostsListAdapter
+    private lateinit var mAdapter: PostForShowingsListAdapter
 
     //private var mFollowingsListRef: DatabaseReference? = null
 
@@ -72,8 +74,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                                     byteArrayOf()
                                                 }
 
-                                            val post = Post(bytes, nickname!!, text, created_at, favoriters_list, user_id, post_id)
-                                            mPostArrayList.add(post)
+                                            //val post = Post(bytes, nickname!!, text, created_at, favoriters_list, user_id, post_id)
+                                            //mPostArrayList.add(post)
+                                            val postForShowing = PostForShowing(bytes, nickname!!, text, created_at, favoriters_list, user_id, post_id, mPostForShowingArrayList.size) // onChildRemovedのときもPostForShowingのpositionInArrayListへの配慮が必要
+                                            mPostForShowingArrayList.add(postForShowing)
                                             mAdapter.notifyDataSetChanged()
                                         }
 
@@ -127,8 +131,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 byteArrayOf()
                             }
 
-                        val post = Post(bytes, nickname, text, created_at, favoriters_list, user_id, post_id)
-                        mPostArrayList.add(post)
+                        //val post = Post(bytes, nickname, text, created_at, favoriters_list, user_id, post_id)
+                        //mPostArrayList.add(post)
+                        val postForShowing = PostForShowing(bytes, nickname, text, created_at, favoriters_list, user_id, post_id, mPostForShowingArrayList.size) // onChildRemovedのときもPostForShowingのpositionInArrayListへの配慮が必要
+                        mPostForShowingArrayList.add(postForShowing)
                         mAdapter.notifyDataSetChanged()
                     }
 
@@ -187,8 +193,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // ListViewの準備
         mListView = findViewById(R.id.listView)
-        mAdapter = PostsListAdapter(this)
-        mPostArrayList = ArrayList<Post>()
+        //mAdapter = PostsListAdapter(this)
+        mAdapter = PostForShowingsListAdapter(this)
+        //mPostArrayList = ArrayList<Post>()
+        mPostForShowingArrayList = ArrayList<PostForShowing>()
         //mFollowingsListWithCurrentUser = ArrayList<String>()
         mAdapter.notifyDataSetChanged()
     }
@@ -244,8 +252,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         if ((id == R.id.nav_posts) || (id == R.id.nav_favorites_list) || (id == R.id.nav_my_posts)) {
             // Postのリストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
-            mPostArrayList.clear()
-            mAdapter.setPostArrayList(mPostArrayList)
+            //mPostArrayList.clear()
+            //mAdapter.setPostArrayList(mPostArrayList)
+            mPostForShowingArrayList.clear()
+            mAdapter.setPostForShowingArrayList(mPostForShowingArrayList)
             mListView.adapter = mAdapter
 
 
