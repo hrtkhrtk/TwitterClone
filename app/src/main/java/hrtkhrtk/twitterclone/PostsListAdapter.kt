@@ -139,7 +139,7 @@ class PostsListAdapter(context: Context) : BaseAdapter() {
                                 if (userData["favorites_list"] == null) {
                                     val existingFavoriteList = ArrayList<MutableMap<String, String>>()
                                     val data = mutableMapOf<String, String>()
-                                    data.put("user_id", user.uid)
+                                    data.put("user_id", mPostArrayList[position].userId)
                                     data.put("post_id", mPostArrayList[position].postId)
                                     existingFavoriteList.add(data)
                                     dataBaseReference.child("users").child(user.uid).child("favorites_list").setValue(existingFavoriteList)
@@ -147,7 +147,7 @@ class PostsListAdapter(context: Context) : BaseAdapter() {
                                 else {
                                     val existingFavoriteList = userData["favorites_list"] as ArrayList<MutableMap<String, String>>
                                     val data = mutableMapOf<String, String>()
-                                    data.put("user_id", user.uid)
+                                    data.put("user_id", mPostArrayList[position].userId)
                                     data.put("post_id", mPostArrayList[position].postId)
 
                                     if (!(existingFavoriteList.contains(data))) { // 含まれなければ追加
