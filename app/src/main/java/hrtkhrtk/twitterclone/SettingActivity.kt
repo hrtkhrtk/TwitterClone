@@ -73,9 +73,13 @@ class SettingActivity : AppCompatActivity(), DatabaseReference.CompletionListene
                             selfIntroductionText.setText(data["self_introduction"] as String)
                             textEmail.setText(data["email"] as String)
                             textIdForSearch.setText(data["id_for_search"] as String)
-                            textCreatedAt.setText(data["created_at"] as String)
+                            //textCreatedAt.setText(data["created_at"] as String)
+                            val created_at_Long = data["created_at"] as Long
+                            textCreatedAt.setText(created_at_Long.toString())
                             textStatus.setText(data["status"] as String)
-                            textAvailableTo.setText(data["available_to"] as String)
+                            //textAvailableTo.setText(data["available_to"] as String)
+                            val available_to_Long = data["available_to"] as Long
+                            textAvailableTo.setText(available_to_Long.toString())
 
                             val icon_image = data["icon_image"] as String
                             val background_image = data["background_image"] as String

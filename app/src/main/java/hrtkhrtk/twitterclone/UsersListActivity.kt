@@ -146,11 +146,13 @@ class UsersListActivity : AppCompatActivity() {
                         val nickname = data_n01["nickname"] as String
                         val id_for_search = data_n01["id_for_search"] as String
                         val self_introduction = data_n01["self_introduction"] as String
-                        val created_at = data_n01["created_at"] as String
+                        //val created_at = data_n01["created_at"] as String
+                        val created_at_Long = data_n01["created_at"] as Long
                         val followings_list = data_n01["followings_list"] as ArrayList<String>? ?: ArrayList<String>()
                         val followers_list = data_n01["followers_list"] as ArrayList<String>? ?: ArrayList<String>()
 
-                        val userDetail = UserDetail(bytesForBackgroundImage, bytesForIconImage, nickname, id_for_search, self_introduction, created_at, followings_list, followers_list, userId)
+                        //val userDetail = UserDetail(bytesForBackgroundImage, bytesForIconImage, nickname, id_for_search, self_introduction, created_at, followings_list, followers_list, userId)
+                        val userDetail = UserDetail(bytesForBackgroundImage, bytesForIconImage, nickname, id_for_search, self_introduction, created_at_Long, followings_list, followers_list, userId)
 
 
 
@@ -162,14 +164,17 @@ class UsersListActivity : AppCompatActivity() {
                                     //val postArrayList = ArrayList<Post>()
                                     val postForShowingArrayList = ArrayList<PostForShowing>()
                                     for (post_id in data_n02.keys) {
+                                        //val post_element = data_n02[post_id] as Map<String, String>
                                         val post_element = data_n02[post_id] as Map<String, String>
                                         val post_text = post_element["text"]
-                                        val post_created_at = post_element["created_at"]
+                                        //val post_created_at = post_element["created_at"]
+                                        val post_created_at_Long = post_element["created_at"] as Long // ここは必ず存在する
                                         val post_favoriters_list = post_element["favoriters_list"] as java.util.ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
 
                                         //val post = Post(bytesForIconImage, nickname, post_text!!, post_created_at!!, post_favoriters_list, userId, post_id)
                                         //postArrayList.add(post)
-                                        val postForShowing = PostForShowing(bytesForIconImage, nickname, post_text!!, post_created_at!!, post_favoriters_list, userId, post_id, postForShowingArrayList.size)
+                                        //val postForShowing = PostForShowing(bytesForIconImage, nickname, post_text!!, post_created_at!!, post_favoriters_list, userId, post_id, postForShowingArrayList.size)
+                                        val postForShowing = PostForShowing(bytesForIconImage, nickname, post_text!!, post_created_at_Long, post_favoriters_list, userId, post_id, postForShowingArrayList.size)
                                         postForShowingArrayList.add(postForShowing)
                                     }
 

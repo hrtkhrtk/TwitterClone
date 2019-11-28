@@ -76,7 +76,8 @@ class PostForShowingsListAdapter(context: Context) : BaseAdapter() {
 
             val postCreatedAtText = convertView.findViewById<View>(R.id.postCreatedAtTextView) as TextView
             //postCreatedAtText.text = mPostForShowingArrayList[position].createdAt
-            postCreatedAtText.text = targetPostForShowing.createdAt
+            //postCreatedAtText.text = targetPostForShowing.createdAt
+            postCreatedAtText.text = targetPostForShowing.createdAt.toString()
 
             val postText = convertView.findViewById<View>(R.id.postTextView) as TextView
             //postText.text = mPostForShowingArrayList[position].text

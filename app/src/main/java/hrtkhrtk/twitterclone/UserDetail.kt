@@ -9,7 +9,8 @@ class UserDetail(
     val nickname: String,
     val idForSearch: String,
     val selfIntroduction: String,
-    val createdAt: String,
+    //val createdAt: String,
+    val createdAt: Long,
     val followingsList: ArrayList<String>,
     val followersList: ArrayList<String>,
     val userId: String

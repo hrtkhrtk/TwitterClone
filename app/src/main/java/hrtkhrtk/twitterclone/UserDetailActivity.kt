@@ -44,7 +44,8 @@ class UserDetailActivity : AppCompatActivity() {
             }
 
             val text = map["text"] ?: ""
-            val created_at = map["created_at"] ?: ""
+            //val created_at = map["created_at"] ?: ""
+            val created_at_Long = map["created_at"] as Long // ここは必ず存在
             val favoriters_list = map["favoriters_list"] as java.util.ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
             val iconImage = mUserDetail.iconImage
             val nickname = mUserDetail.nickname
@@ -52,7 +53,8 @@ class UserDetailActivity : AppCompatActivity() {
 
             //val post = Post(iconImage, nickname, text, created_at, favoriters_list, user_id, post_id)
             //mPostArrayList.add(post)
-            val postForShowing = PostForShowing(iconImage, nickname, text, created_at, favoriters_list, user_id, post_id, mPostForShowingArrayList.size)
+            //val postForShowing = PostForShowing(iconImage, nickname, text, created_at, favoriters_list, user_id, post_id, mPostForShowingArrayList.size)
+            val postForShowing = PostForShowing(iconImage, nickname, text, created_at_Long, favoriters_list, user_id, post_id, mPostForShowingArrayList.size)
             mPostForShowingArrayList.add(postForShowing)
             mAdapter.notifyDataSetChanged()
         }
