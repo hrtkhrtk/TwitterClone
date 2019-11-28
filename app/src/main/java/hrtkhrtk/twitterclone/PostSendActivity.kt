@@ -35,19 +35,12 @@ class PostSendActivity : AppCompatActivity(), DatabaseReference.CompletionListen
 
             val postText = postText.text.toString()
             if (postText.length != 0) {
-                val data = HashMap<String, String>()
+                //val data = HashMap<String, String>()
+                val data = HashMap<String, Any>()
                 data["text"] = postText
-                data["created_at"] = (-1).toString() // すぐ後に上書きされる
-
+                data["created_at"] = ServerValue.TIMESTAMP
                 progressBar.visibility = View.VISIBLE
-                //postRef.push().setValue(data, this)
-                val newPostId = postRef.push().getKey() // 参考：https://tutorialmore.com/questions-563054.htm「解決した方法 # 1」
-                                                                // 参考：https://firebase.google.com/docs/database/android/save-data?hl=ja「getKey()」
-                postRef.child(newPostId!!).setValue(data)
-
-                val timeData = HashMap<String, Map<String, String>>()
-                timeData["created_at"] = ServerValue.TIMESTAMP
-                postRef.child(newPostId).updateChildren(timeData as Map<String, Map<String, String>>, this)
+                postRef.push().setValue(data, this)
             } else {
                 // エラーを表示する
                 Snackbar.make(v, "正しく入力してください", Snackbar.LENGTH_LONG).show()

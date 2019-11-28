@@ -19,7 +19,8 @@ import java.util.HashMap
 
 class UserDetailActivity : AppCompatActivity() {
 
-    private lateinit var mPostArrayList: ArrayList<Post>
+    //private lateinit var mPostArrayList: ArrayList<Post>
+    private lateinit var mPostForShowingArrayList: ArrayList<PostForShowing>
     private lateinit var mUserDetail: UserDetail
     private lateinit var mAdapter: UserDetailListAdapter
     private lateinit var mPostRef: DatabaseReference
@@ -29,9 +30,15 @@ class UserDetailActivity : AppCompatActivity() {
             val map = dataSnapshot.value as Map<String, String>
             val post_id = dataSnapshot.key!!
 
-            for (post in mPostArrayList) {
+            //for (post in mPostArrayList) {
+            //    // 同じpost_idのものが存在しているときは何もしない
+            //    if (post_id == post.postId) {
+            //        return
+            //    }
+            //}
+            for (postForShowing in mPostForShowingArrayList) {
                 // 同じpost_idのものが存在しているときは何もしない
-                if (post_id == post.postId) {
+                if (post_id == postForShowing.postId) {
                     return
                 }
             }
@@ -43,8 +50,10 @@ class UserDetailActivity : AppCompatActivity() {
             val nickname = mUserDetail.nickname
             val user_id = mUserDetail.userId
 
-            val post = Post(iconImage, nickname, text, created_at, favoriters_list, user_id, post_id)
-            mPostArrayList.add(post)
+            //val post = Post(iconImage, nickname, text, created_at, favoriters_list, user_id, post_id)
+            //mPostArrayList.add(post)
+            val postForShowing = PostForShowing(iconImage, nickname, text, created_at, favoriters_list, user_id, post_id, mPostForShowingArrayList.size)
+            mPostForShowingArrayList.add(postForShowing)
             mAdapter.notifyDataSetChanged()
         }
 
@@ -63,13 +72,15 @@ class UserDetailActivity : AppCompatActivity() {
 
         // 渡ってきたオブジェクトを保持する
         val extras = intent.extras
-        mPostArrayList = extras.get("postArrayList") as ArrayList<Post>
+        //mPostArrayList = extras.get("postArrayList") as ArrayList<Post>
+        mPostForShowingArrayList = extras.get("postForShowingArrayList") as ArrayList<PostForShowing>
         mUserDetail = extras.get("userDetail") as UserDetail
 
         title = mUserDetail.nickname
 
         // ListViewの準備
-        mAdapter = UserDetailListAdapter(this, mUserDetail, mPostArrayList)
+        //mAdapter = UserDetailListAdapter(this, mUserDetail, mPostArrayList)
+        mAdapter = UserDetailListAdapter(this, mUserDetail, mPostForShowingArrayList)
         listView.adapter = mAdapter
         mAdapter.notifyDataSetChanged()
 

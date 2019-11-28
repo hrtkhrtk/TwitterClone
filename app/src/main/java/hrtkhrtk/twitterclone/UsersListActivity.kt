@@ -159,19 +159,23 @@ class UsersListActivity : AppCompatActivity() {
                                 override fun onDataChange(snapshot_n02: DataSnapshot) {
                                     val data_n02 = snapshot_n02.value as HashMap<String, String>? ?: HashMap<String, String>() // ここはnullかも
 
-                                    val postArrayList = ArrayList<Post>()
+                                    //val postArrayList = ArrayList<Post>()
+                                    val postForShowingArrayList = ArrayList<PostForShowing>()
                                     for (post_id in data_n02.keys) {
                                         val post_element = data_n02[post_id] as Map<String, String>
                                         val post_text = post_element["text"]
                                         val post_created_at = post_element["created_at"]
                                         val post_favoriters_list = post_element["favoriters_list"] as java.util.ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
 
-                                        val post = Post(bytesForIconImage, nickname, post_text!!, post_created_at!!, post_favoriters_list, userId, post_id)
-                                        postArrayList.add(post)
+                                        //val post = Post(bytesForIconImage, nickname, post_text!!, post_created_at!!, post_favoriters_list, userId, post_id)
+                                        //postArrayList.add(post)
+                                        val postForShowing = PostForShowing(bytesForIconImage, nickname, post_text!!, post_created_at!!, post_favoriters_list, userId, post_id, postForShowingArrayList.size)
+                                        postForShowingArrayList.add(postForShowing)
                                     }
 
                                     intent.putExtra("userDetail", userDetail)
-                                    intent.putExtra("postArrayList", postArrayList)
+                                    //intent.putExtra("postArrayList", postArrayList)
+                                    intent.putExtra("postForShowingArrayList", postForShowingArrayList)
                                     startActivity(intent)
 
                                 }

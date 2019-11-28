@@ -21,7 +21,8 @@ import com.google.firebase.database.ValueEventListener
 
 import java.util.ArrayList
 
-class UserDetailListAdapter(context: Context, private val mUserDetail: UserDetail, private val mPostArrayList: ArrayList<Post>) : BaseAdapter() {
+//class UserDetailListAdapter(context: Context, private val mUserDetail: UserDetail, private val mPostArrayList: ArrayList<Post>) : BaseAdapter() {
+class UserDetailListAdapter(context: Context, private val mUserDetail: UserDetail, private val mPostForShowingArrayList: ArrayList<PostForShowing>) : BaseAdapter() {
     companion object {
         private val TYPE_USER = 0
         private val TYPE_POST = 1
@@ -34,7 +35,8 @@ class UserDetailListAdapter(context: Context, private val mUserDetail: UserDetai
     }
 
     override fun getCount(): Int {
-        return (1 + mPostArrayList.size)
+        //return (1 + mPostArrayList.size)
+        return (1 + mPostForShowingArrayList.size)
     }
 
 
@@ -247,24 +249,145 @@ class UserDetailListAdapter(context: Context, private val mUserDetail: UserDetai
                 convertView = mLayoutInflater.inflate(R.layout.list_posts, parent, false)!!
             }
 
-            val nicknameText = convertView.findViewById<View>(R.id.nicknameTextView) as TextView
-            nicknameText.text = mPostArrayList[position-1].nickname
 
-            val postCreatedAtText = convertView.findViewById<View>(R.id.postCreatedAtTextView) as TextView
-            postCreatedAtText.text = mPostArrayList[position-1].createdAt
+            var targetPostForShowing: PostForShowing? = null
+            for (postForShowing in mPostForShowingArrayList) {
+                //if (position == postForShowing.positionInArrayList) {
+                if ((position - 1) == postForShowing.positionInArrayList) {
+                    targetPostForShowing = postForShowing
+                }
+            }
 
-            val postText = convertView.findViewById<View>(R.id.postTextView) as TextView
-            postText.text = mPostArrayList[position-1].text
 
-            val favoritersNumberText = convertView.findViewById<View>(R.id.favoritersNumberTextView) as TextView
-            val favoritersNum = mPostArrayList[position-1].favoritersList.size
-            favoritersNumberText.text = favoritersNum.toString()
 
-            val bytes = mPostArrayList[position-1].iconImage
-            if (bytes.isNotEmpty()) {
-                val image = BitmapFactory.decodeByteArray(bytes, 0, bytes.size).copy(Bitmap.Config.ARGB_8888, true)
-                val iconImageView = convertView.findViewById<View>(R.id.iconImageView) as ImageView
-                iconImageView.setImageBitmap(image)
+            if (targetPostForShowing != null) {
+
+                val nicknameText = convertView.findViewById<View>(R.id.nicknameTextView) as TextView
+                //nicknameText.text = mPostArrayList[position-1].nickname
+                nicknameText.text = targetPostForShowing.nickname
+
+                val postCreatedAtText = convertView.findViewById<View>(R.id.postCreatedAtTextView) as TextView
+                //postCreatedAtText.text = mPostArrayList[position-1].createdAt
+                postCreatedAtText.text = targetPostForShowing.createdAt
+
+                val postText = convertView.findViewById<View>(R.id.postTextView) as TextView
+                //postText.text = mPostArrayList[position-1].text
+                postText.text = targetPostForShowing.text
+
+                val favoritersNumberText = convertView.findViewById<View>(R.id.favoritersNumberTextView) as TextView
+                //val favoritersNum = mPostArrayList[position-1].favoritersList.size
+                val favoritersNum = targetPostForShowing.favoritersList.size
+                favoritersNumberText.text = favoritersNum.toString()
+
+                //val bytes = mPostArrayList[position-1].iconImage
+                val bytes = targetPostForShowing.iconImage
+                if (bytes.isNotEmpty()) {
+                    val image = BitmapFactory.decodeByteArray(bytes, 0, bytes.size).copy(Bitmap.Config.ARGB_8888, true)
+                    val iconImageView = convertView.findViewById<View>(R.id.iconImageView) as ImageView
+                    iconImageView.setImageBitmap(image)
+                }
+
+
+
+                // ログイン済みのユーザーを取得する
+                val user = FirebaseAuth.getInstance().currentUser
+                if (user == null) {
+                    // ログインしていない場合は何もしない
+                    //Snackbar.make(v, "ログインしていません", Snackbar.LENGTH_LONG).show()
+                } else {
+                    val favoriteButton = convertView.findViewById<Button>(R.id.favoriteButton) // as Buttonを付けるとエラーになる
+
+                    val dataBaseReference = FirebaseDatabase.getInstance().reference
+                    val userRef = dataBaseReference.child("users").child(user.uid)
+                    userRef.addValueEventListener(
+                            object : ValueEventListener {
+                                override fun onDataChange(snapshot: DataSnapshot) {
+                                    //Log.d("test191127n33", "test191127n33")
+                                    val userData = snapshot.value as MutableMap<String, String> // userDataは必ず存在する
+                                    if (userData["favorites_list"] == null) { // リストに含まれない（リストがない）
+                                        Log.d("test191127n34", "test191127n34")
+                                        favoriteButton.setBackgroundColor(Color.parseColor("#0000ff")); // 参考：https://seesaawiki.jp/w/moonlight_aska/d/%A5%D3%A5%E5%A1%BC%A4%CE%C7%D8%B7%CA%BF%A7%A4%F2%A4%AB%A4%A8%A4%EB
+                                        favoriteButton.text = "fav"
+                                    } else {
+                                        //Log.d("test191127n35", "test191127n35")
+                                        val existingFavoriteList = userData["favorites_list"] as ArrayList<MutableMap<String, String>>
+
+                                        val data = mutableMapOf<String, String>()
+                                        //data.put("user_id", mPostForShowingArrayList[position-1].userId)
+                                        data.put("user_id", targetPostForShowing.userId)
+                                        //data.put("post_id", mPostForShowingArrayList[position-1].postId)
+                                        data.put("post_id", targetPostForShowing.postId)
+
+                                        if (!(existingFavoriteList.contains(data))) { // 含まれなければ
+                                            Log.d("test191127n36", "test191127n36")
+                                            Log.d("test191127n100", data["user_id"])
+                                            Log.d("test191127n101", data["post_id"])
+                                            //val test = mPostForShowingArrayList
+                                            favoriteButton.setBackgroundColor(Color.parseColor("#0000ff")); // 参考：https://seesaawiki.jp/w/moonlight_aska/d/%A5%D3%A5%E5%A1%BC%A4%CE%C7%D8%B7%CA%BF%A7%A4%F2%A4%AB%A4%A8%A4%EB
+                                            favoriteButton.text = "fav"
+                                        } else { // 含まれていれば
+                                            Log.d("test191127n37", "test191127n37")
+                                            favoriteButton.setBackgroundColor(Color.parseColor("#ff0000")); // 参考：https://seesaawiki.jp/w/moonlight_aska/d/%A5%D3%A5%E5%A1%BC%A4%CE%C7%D8%B7%CA%BF%A7%A4%F2%A4%AB%A4%A8%A4%EB
+                                            favoriteButton.text = "unfav"
+                                        }
+                                    }
+                                }
+
+                                override fun onCancelled(firebaseError: DatabaseError) {}
+                            }
+                    )
+
+                    favoriteButton.visibility = View.VISIBLE
+                    //favoriteButton.setOnClickListener(this) // 書き方についてLesson4項目3.1参照
+                    favoriteButton.setOnClickListener { v ->
+                        val user = FirebaseAuth.getInstance().currentUser
+
+                        if (user == null) {
+                            // ログインしていない場合は何もしない
+                            Snackbar.make(v, "ログインしていません", Snackbar.LENGTH_LONG).show()
+                        } else {
+                            // Firebaseに保存する
+                            val dataBaseReference = FirebaseDatabase.getInstance().reference
+                            val userRef = dataBaseReference.child("users").child(user.uid)
+
+                            userRef.addListenerForSingleValueEvent(
+                                    object : ValueEventListener {
+                                        override fun onDataChange(snapshot: DataSnapshot) {
+                                            val userData = snapshot.value as MutableMap<String, String> // userDataは必ず存在
+
+                                            if (userData["favorites_list"] == null) {
+                                                val existingFavoriteList = ArrayList<MutableMap<String, String>>()
+                                                val data = mutableMapOf<String, String>()
+                                                //data.put("user_id", mPostForShowingArrayList[position-1].userId)
+                                                data.put("user_id", targetPostForShowing.userId)
+                                                //data.put("post_id", mPostForShowingArrayList[position-1].postId)
+                                                data.put("post_id", targetPostForShowing.postId)
+                                                existingFavoriteList.add(data)
+                                                dataBaseReference.child("users").child(user.uid).child("favorites_list").setValue(existingFavoriteList)
+                                            } else {
+                                                val existingFavoriteList = userData["favorites_list"] as ArrayList<MutableMap<String, String>>
+                                                val data = mutableMapOf<String, String>()
+                                                //data.put("user_id", mPostForShowingArrayList[position-1].userId)
+                                                data.put("user_id", targetPostForShowing.userId)
+                                                //data.put("post_id", mPostForShowingArrayList[position-1].postId)
+                                                data.put("post_id", targetPostForShowing.postId)
+
+                                                if (!(existingFavoriteList.contains(data))) { // 含まれなければ追加
+                                                    existingFavoriteList.add(data)
+                                                    dataBaseReference.child("users").child(user.uid).child("favorites_list").setValue(existingFavoriteList)
+                                                } else { // 含まれていれば削除
+                                                    existingFavoriteList.remove(data) // 参考：Lesson3項目11.3
+                                                    dataBaseReference.child("users").child(user.uid).child("favorites_list").setValue(existingFavoriteList)
+                                                }
+                                            }
+                                        }
+
+                                        override fun onCancelled(firebaseError: DatabaseError) {}
+                                    }
+                            )
+                        }
+                    }
+                }
             }
         }
 
