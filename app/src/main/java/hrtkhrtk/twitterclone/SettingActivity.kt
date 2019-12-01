@@ -65,24 +65,27 @@ class SettingActivity : AppCompatActivity(), DatabaseReference.CompletionListene
             userRef.addListenerForSingleValueEvent(
                     object : ValueEventListener {
                         override fun onDataChange(snapshot: DataSnapshot) {
-                            val data = snapshot.value as Map<*, *>?
+                            //val data = snapshot.value as Map<*, *>?
+                            val data = snapshot.value as Map<String, String> // ここは必ず存在
                             //saveName(data!!["name"] as String)
-                            nicknameText.setText(data!!["nickname"] as String)
+                            nicknameText.setText(data["nickname"])
                             //selfIntroductionText.setText(data["self_introduction"] as String) // kotlin.TypeCastException: null cannot be cast to non-null type kotlin.String が出る
                             //selfIntroductionText.setText(data["self_introduction"] as String? ?: "")
-                            selfIntroductionText.setText(data["self_introduction"] as String)
-                            textEmail.setText(data["email"] as String)
-                            textIdForSearch.setText(data["id_for_search"] as String)
+                            selfIntroductionText.setText(data["self_introduction"])
+                            textEmail.setText(data["email"])
+                            textIdForSearch.setText(data["id_for_search"])
                             //textCreatedAt.setText(data["created_at"] as String)
-                            val created_at_Long = data["created_at"] as Long
+                            //val created_at_Long = data["created_at"] as Long
+                            val created_at_Long = data["created_at"]!!.toLong() // ここは必ず存在
                             textCreatedAt.setText(created_at_Long.toString())
-                            textStatus.setText(data["status"] as String)
+                            textStatus.setText(data["status"])
                             //textAvailableTo.setText(data["available_to"] as String)
-                            val available_to_Long = data["available_to"] as Long
+                            //val available_to_Long = data["available_to"] as Long
+                            val available_to_Long = data["available_to"]!!.toLong() // ここは必ず存在
                             textAvailableTo.setText(available_to_Long.toString())
 
-                            val icon_image = data["icon_image"] as String
-                            val background_image = data["background_image"] as String
+                            val icon_image = data["icon_image"]!! // ここは必ず存在
+                            val background_image = data["background_image"]!! // ここは必ず存在
 
                             if (icon_image.isNotEmpty()) { // 参考：Lesson8のMainActivity.kt
                                 val bytes = Base64.decode(icon_image, Base64.DEFAULT) // 参考：Lesson8のMainActivity.kt

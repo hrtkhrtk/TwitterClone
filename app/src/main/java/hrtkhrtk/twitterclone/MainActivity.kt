@@ -49,10 +49,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     mDatabaseReference.child("posts").child(user_id).addChildEventListener(
                         object : ChildEventListener {
                             override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
-                                val map = dataSnapshot.value as Map<String, String>
-                                val text = map["text"] ?: ""
+                                //val map = dataSnapshot.value as Map<String, String>
+                                //val map = dataSnapshot.value as Map<String, Any>
+                                val map = dataSnapshot.value as Map<*, *>
+                                val text = map["text"] ?: "" as String // なぜか効かない
                                 //val created_at = map["created_at"] ?: ""
                                 val created_at_Long = map["created_at"] as Long // ここは必ず存在
+                                //val created_at_Long = map["created_at"]!!.toLong() // ここは必ず存在
                                 val favoriters_list = map["favoriters_list"] as java.util.ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
                                 val post_id = dataSnapshot.key!!
 
@@ -62,9 +65,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 FirebaseDatabase.getInstance().reference.child("users").child(user_id).addListenerForSingleValueEvent(
                                     object : ValueEventListener {
                                         override fun onDataChange(snapshot: DataSnapshot) {
-                                            val data = snapshot.value as Map<*, *>?
-                                            iconImageString = data!!["icon_image"] as String
-                                            nickname = data["nickname"] as String
+                                            val data = snapshot.value as Map<String, String> // ここは必ず存在
+                                            iconImageString = data["icon_image"]
+                                            nickname = data["nickname"]
                                             //Log.d("test191126n40 icon", iconImageString)
                                             //Log.d("test191126n40 nickname", nickname)
 
@@ -78,7 +81,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                             //val post = Post(bytes, nickname!!, text, created_at, favoriters_list, user_id, post_id)
                                             //mPostArrayList.add(post)
                                             //val postForShowing = PostForShowing(bytes, nickname!!, text, created_at, favoriters_list, user_id, post_id, mPostForShowingArrayList.size) // onChildRemovedのときもPostForShowingのpositionInArrayListへの配慮が必要
-                                            val postForShowing = PostForShowing(bytes, nickname!!, text, created_at_Long, favoriters_list, user_id, post_id, mPostForShowingArrayList.size) // onChildRemovedのときもPostForShowingのpositionInArrayListへの配慮が必要
+                                            //val postForShowing = PostForShowing(bytes, nickname!!, text, created_at_Long, favoriters_list, user_id, post_id, mPostForShowingArrayList.size) // onChildRemovedのときもPostForShowingのpositionInArrayListへの配慮が必要
+                                            val postForShowing = PostForShowing(bytes, nickname!!, text as String, created_at_Long, favoriters_list, user_id, post_id, mPostForShowingArrayList.size) // onChildRemovedのときもPostForShowingのpositionInArrayListへの配慮が必要
                                             mPostForShowingArrayList.add(postForShowing)
                                             mAdapter.notifyDataSetChanged()
                                         }
@@ -113,7 +117,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val map = dataSnapshot.value as Map<String, String>
             val text = map["text"] ?: ""
             //val created_at = map["created_at"] ?: ""
-            val created_at_Long = map["created_at"] as Long // ここは必ず存在
+            //val created_at_Long = map["created_at"] as Long // ここは必ず存在
+            val created_at_Long = map["created_at"]!!.toLong() // ここは必ず存在
             val favoriters_list = map["favoriters_list"] as java.util.ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
             val post_id = dataSnapshot.key!!
 

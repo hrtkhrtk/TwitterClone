@@ -45,7 +45,8 @@ class UserDetailActivity : AppCompatActivity() {
 
             val text = map["text"] ?: ""
             //val created_at = map["created_at"] ?: ""
-            val created_at_Long = map["created_at"] as Long // ここは必ず存在
+            //val created_at_Long = map["created_at"] as Long // ここは必ず存在
+            val created_at_Long = map["created_at"]!!.toLong() // ここは必ず存在
             val favoriters_list = map["favoriters_list"] as java.util.ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
             val iconImage = mUserDetail.iconImage
             val nickname = mUserDetail.nickname
