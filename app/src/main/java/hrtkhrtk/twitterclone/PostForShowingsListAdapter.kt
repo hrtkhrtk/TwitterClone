@@ -77,7 +77,8 @@ class PostForShowingsListAdapter(context: Context) : BaseAdapter() {
             val postCreatedAtText = convertView.findViewById<View>(R.id.postCreatedAtTextView) as TextView
             //postCreatedAtText.text = mPostForShowingArrayList[position].createdAt
             //postCreatedAtText.text = targetPostForShowing.createdAt
-            postCreatedAtText.text = targetPostForShowing.createdAt.toString()
+            //postCreatedAtText.text = targetPostForShowing.createdAt.toString()
+            postCreatedAtText.text = getDateTime(targetPostForShowing.createdAt)
 
             val postText = convertView.findViewById<View>(R.id.postTextView) as TextView
             //postText.text = mPostForShowingArrayList[position].text
@@ -110,14 +111,11 @@ class PostForShowingsListAdapter(context: Context) : BaseAdapter() {
                 userRef.addValueEventListener(
                         object : ValueEventListener {
                             override fun onDataChange(snapshot: DataSnapshot) {
-                                //Log.d("test191127n33", "test191127n33")
                                 val userData = snapshot.value as MutableMap<String, String> // userDataは必ず存在する
                                 if (userData["favorites_list"] == null) { // リストに含まれない（リストがない）
-                                    //Log.d("test191127n34", "test191127n34")
                                     favoriteButton.setBackgroundColor(Color.parseColor("#0000ff")); // 参考：https://seesaawiki.jp/w/moonlight_aska/d/%A5%D3%A5%E5%A1%BC%A4%CE%C7%D8%B7%CA%BF%A7%A4%F2%A4%AB%A4%A8%A4%EB
                                     favoriteButton.text = "fav"
                                 } else {
-                                    //Log.d("test191127n35", "test191127n35")
                                     val existingFavoriteList = userData["favorites_list"] as ArrayList<MutableMap<String, String>>
 
                                     val data = mutableMapOf<String, String>()
@@ -127,14 +125,9 @@ class PostForShowingsListAdapter(context: Context) : BaseAdapter() {
                                     data.put("post_id", targetPostForShowing.postId)
 
                                     if (!(existingFavoriteList.contains(data))) { // 含まれなければ
-                                        //Log.d("test191127n36", "test191127n36")
-                                        //Log.d("test191127n100", data["user_id"])
-                                        //Log.d("test191127n101", data["post_id"])
-                                        //val test = mPostForShowingArrayList
                                         favoriteButton.setBackgroundColor(Color.parseColor("#0000ff")); // 参考：https://seesaawiki.jp/w/moonlight_aska/d/%A5%D3%A5%E5%A1%BC%A4%CE%C7%D8%B7%CA%BF%A7%A4%F2%A4%AB%A4%A8%A4%EB
                                         favoriteButton.text = "fav"
                                     } else { // 含まれていれば
-                                        //Log.d("test191127n37", "test191127n37")
                                         favoriteButton.setBackgroundColor(Color.parseColor("#ff0000")); // 参考：https://seesaawiki.jp/w/moonlight_aska/d/%A5%D3%A5%E5%A1%BC%A4%CE%C7%D8%B7%CA%BF%A7%A4%F2%A4%AB%A4%A8%A4%EB
                                         favoriteButton.text = "unfav"
                                     }

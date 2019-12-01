@@ -64,27 +64,19 @@ class SignupActivity : AppCompatActivity() {
                 val nickname = nicknameText.text.toString()
                 val email =emailText.text.toString()
                 val id_for_search = idForSearchText.text.toString()
-                //val created_at = ServerValue.TIMESTAMP
-                //val created_at = 12121212.toString() // TODO:
                 val status = 0.toString() // 0:お試しユーザー、1:サブスクユーザー
-                //val available_to = 13131313.toString() // TODO:
                 //val data = HashMap<String, String>()
                 val data = HashMap<String, Any>()
                 data["nickname"] = nickname
                 data["email"] = email
                 data["id_for_search"] = id_for_search
-                //data["created_at"] = created_at
                 data["created_at"] = ServerValue.TIMESTAMP
                 data["status"] = status
-                //data["available_to"] = available_to
                 usersRef.setValue(data)
                 usersRef.addListenerForSingleValueEvent(
                         object : ValueEventListener {
                             override fun onDataChange(snapshot: DataSnapshot) {
-                                //val dataInListener = snapshot.value as Map<String, String>
                                 val dataInListener = snapshot.value as Map<String, Long>
-                                //val created_at_InListener = snapshot.value["created_at"]
-                                //val created_at_InListener = dataInListener["created_at"] as Long? ?: (-1) // (-1)の値に意味はない
                                 val created_at_InListener = dataInListener["created_at"] ?: ((-1).toLong()) // (-1)の値に意味はない
                                 if (created_at_InListener >= 0) {
                                     val available_to = created_at_InListener + 1000*60*5 // 5分後
@@ -92,7 +84,6 @@ class SignupActivity : AppCompatActivity() {
                                     data_to_update_InListener["available_to"] = available_to
                                     usersRef.updateChildren(data_to_update_InListener)
                                 } else {
-                                    //val available_to = (-1) as Long // (-1)の値に意味はない
                                     val available_to = (-1).toLong() // (-1)の値に意味はない
                                     val data_to_update_InListener = HashMap<String, Any>()
                                     data_to_update_InListener["available_to"] = available_to
@@ -117,9 +108,6 @@ class SignupActivity : AppCompatActivity() {
 
                 // プログレスバーを非表示にする
                 progressBar.visibility = View.GONE
-
-                // Activityを閉じる
-                //finish()
 
                 val intent = Intent(this, RegisteringActivity::class.java)
                 startActivity(intent)

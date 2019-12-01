@@ -34,6 +34,56 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //private var mFollowingsListRef: DatabaseReference? = null
 
+
+
+    private val mEventListenerForFavoritesListRef = object : ValueEventListener {
+        override fun onDataChange(dataSnapshot: DataSnapshot) {
+            val favorites_list = dataSnapshot.value as ArrayList<Map<String, String>>? ?: ArrayList<Map<String, String>>()
+            for (favorite_element in favorites_list) {
+                mDatabaseReference.child("posts").child(favorite_element["user_id"]!!).child(favorite_element["post_id"]!!).addListenerForSingleValueEvent(
+                    object : ValueEventListener {
+                        override fun onDataChange(snapshot_in_postRef: DataSnapshot) {
+                            val data_in_postRef = snapshot_in_postRef.value as Map<String, String> // ここは必ず存在
+                            val text = data_in_postRef["text"]!! // ここは必ず存在
+                            val data_in_postRef_2 = snapshot_in_postRef.value as Map<String, Long> // ここは必ず存在
+                            val created_at_Long = data_in_postRef_2["created_at"]!! // ここは必ず存在
+                            val favoriters_list = data_in_postRef["favoriters_list"] as java.util.ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
+
+                            mDatabaseReference.child("users").child(favorite_element["user_id"]!!).addListenerForSingleValueEvent(
+                                object : ValueEventListener {
+                                    override fun onDataChange(snapshot_in_userRef: DataSnapshot) {
+                                        val data_in_userRef = snapshot_in_userRef.value as Map<String, String> // ここは必ず存在
+                                        val iconImageString = data_in_userRef["icon_image"]!! // ここは必ず存在
+                                        val nickname = data_in_userRef["nickname"]!! // ここは必ず存在
+
+                                        val bytes =
+                                            if (iconImageString.isNotEmpty()) {
+                                                Base64.decode(iconImageString, Base64.DEFAULT)
+                                            } else {
+                                                byteArrayOf()
+                                            }
+
+                                        val postForShowing = PostForShowing(bytes, nickname, text, created_at_Long, favoriters_list, favorite_element["user_id"]!!, favorite_element["post_id"]!!, mPostForShowingArrayList.size) // onChildRemovedのときもPostForShowingのpositionInArrayListへの配慮が必要
+                                        mPostForShowingArrayList.add(postForShowing)
+                                        mAdapter.notifyDataSetChanged()
+                                    }
+
+                                    override fun onCancelled(firebaseError_in_userRef: DatabaseError) {}
+                                }
+                            )
+                        }
+
+                        override fun onCancelled(firebaseError_in_postRef: DatabaseError) {}
+                    }
+                )
+            }
+        }
+
+        override fun onCancelled(firebaseError: DatabaseError) {}
+    }
+
+
+
     private val mEventListenerForFollowingsListRef = object : ValueEventListener {
         override fun onDataChange(dataSnapshot: DataSnapshot) {
             // TODO:
@@ -51,8 +101,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
                                 val map = dataSnapshot.value as Map<String, String>
                                 val text = map["text"] ?: ""
-                                //val created_at = map["created_at"] ?: ""
-                                //val created_at_Long = map["created_at"] as Long // ここは必ず存在
                                 val map2 = dataSnapshot.value as Map<String, Long>
                                 val created_at_Long = map2["created_at"]!! // ここは必ず存在
                                 val favoriters_list = map["favoriters_list"] as java.util.ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
@@ -61,14 +109,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 var iconImageString: String? = null
                                 var nickname: String? = null
 
-                                FirebaseDatabase.getInstance().reference.child("users").child(user_id).addListenerForSingleValueEvent(
+                                //FirebaseDatabase.getInstance().reference.child("users").child(user_id).addListenerForSingleValueEvent(
+                                mDatabaseReference.child("users").child(user_id).addListenerForSingleValueEvent(
                                     object : ValueEventListener {
                                         override fun onDataChange(snapshot: DataSnapshot) {
                                             val data = snapshot.value as Map<String, String> // ここは必ず存在
                                             iconImageString = data["icon_image"]
                                             nickname = data["nickname"]
-                                            //Log.d("test191126n40 icon", iconImageString)
-                                            //Log.d("test191126n40 nickname", nickname)
 
                                             val bytes =
                                                 if (iconImageString!!.isNotEmpty()) {
@@ -77,9 +124,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                                     byteArrayOf()
                                                 }
 
-                                            //val post = Post(bytes, nickname!!, text, created_at, favoriters_list, user_id, post_id)
-                                            //mPostArrayList.add(post)
-                                            //val postForShowing = PostForShowing(bytes, nickname!!, text, created_at, favoriters_list, user_id, post_id, mPostForShowingArrayList.size) // onChildRemovedのときもPostForShowingのpositionInArrayListへの配慮が必要
                                             val postForShowing = PostForShowing(bytes, nickname!!, text, created_at_Long, favoriters_list, user_id, post_id, mPostForShowingArrayList.size) // onChildRemovedのときもPostForShowingのpositionInArrayListへの配慮が必要
                                             mPostForShowingArrayList.add(postForShowing)
                                             mAdapter.notifyDataSetChanged()
@@ -114,8 +158,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
             val map = dataSnapshot.value as Map<String, String>
             val text = map["text"] ?: ""
-            //val created_at = map["created_at"] ?: ""
-            //val created_at_Long = map["created_at"] as Long // ここは必ず存在
             val map2 = dataSnapshot.value as Map<String, Long>
             val created_at_Long = map2["created_at"]!! // ここは必ず存在
             val favoriters_list = map["favoriters_list"] as java.util.ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
@@ -138,9 +180,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 byteArrayOf()
                             }
 
-                        //val post = Post(bytes, nickname, text, created_at, favoriters_list, user_id, post_id)
-                        //mPostArrayList.add(post)
-                        //val postForShowing = PostForShowing(bytes, nickname, text, created_at, favoriters_list, user_id, post_id, mPostForShowingArrayList.size) // onChildRemovedのときもPostForShowingのpositionInArrayListへの配慮が必要
                         val postForShowing = PostForShowing(bytes, nickname, text, created_at_Long, favoriters_list, user_id, post_id, mPostForShowingArrayList.size) // onChildRemovedのときもPostForShowingのpositionInArrayListへの配慮が必要
                         mPostForShowingArrayList.add(postForShowing)
                         mAdapter.notifyDataSetChanged()
@@ -246,8 +285,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         if (id == R.id.nav_search_posts) {
             mToolbar.title = "search_posts"
-        } else if (id == R.id.nav_favorites_list) {
-            mToolbar.title = "favorites_list"
+            //} else if (id == R.id.nav_favorites_list) {
+            //    mToolbar.title = "favorites_list"
         } else if (id == R.id.nav_policy) {
             //mToolbar.title = "policy"
             val intent = Intent(this@MainActivity, PolicyActivity::class.java)
@@ -258,7 +297,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
         drawer.closeDrawer(GravityCompat.START)
 
-        if ((id == R.id.nav_posts) || (id == R.id.nav_favorites_list) || (id == R.id.nav_my_posts)) {
+        //if ((id == R.id.nav_posts) || (id == R.id.nav_favorites_list) || (id == R.id.nav_my_posts)) {
+        if ((id == R.id.nav_posts) || (id == R.id.nav_favorites_list) || (id == R.id.nav_my_posts) || (id == R.id.nav_favorites_list)) {
             // Postのリストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
             //mPostArrayList.clear()
             //mAdapter.setPostArrayList(mPostArrayList)
@@ -308,7 +348,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     mDatabaseReference.child("posts").child(user.uid).addChildEventListener(mEventListenerForMyPosts)
                 }
             }
+            else if (id == R.id.nav_favorites_list) {
+                mToolbar.title = "favorites_list"
 
+                // ログイン済みのユーザーを取得する
+                val user = FirebaseAuth.getInstance().currentUser
+
+                // ログインしていなければログイン画面に遷移させる
+                if (user == null) {
+                    val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                    startActivity(intent)
+                }
+                else {
+                    // removeいる？ // TODO:
+                    mDatabaseReference.child("users").child(user.uid).child("favorites_list").addValueEventListener(mEventListenerForFavoritesListRef)
+                }
+            }
         }
         else if ((id == R.id.nav_search_users) || (id == R.id.nav_followings_list) || (id == R.id.nav_followers_list)) {
             if (id == R.id.nav_search_users) {

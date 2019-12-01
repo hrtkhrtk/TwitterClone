@@ -90,7 +90,8 @@ class UserDetailListAdapter(context: Context, private val mUserDetail: UserDetai
 
             val createdAtText = convertView.findViewById<View>(R.id.createdAtTextView) as TextView
             //createdAtText.text = mUserDetail.createdAt
-            createdAtText.text = mUserDetail.createdAt.toString()
+            //createdAtText.text = mUserDetail.createdAt.toString()
+            createdAtText.text = getDateTime(mUserDetail.createdAt)
 
             val followingsNumberText = convertView.findViewById<View>(R.id.followingsNumberTextView) as TextView
             val followingsNum = mUserDetail.followingsList.size
@@ -270,7 +271,8 @@ class UserDetailListAdapter(context: Context, private val mUserDetail: UserDetai
                 val postCreatedAtText = convertView.findViewById<View>(R.id.postCreatedAtTextView) as TextView
                 //postCreatedAtText.text = mPostArrayList[position-1].createdAt
                 //postCreatedAtText.text = targetPostForShowing.createdAt
-                postCreatedAtText.text = targetPostForShowing.createdAt.toString()
+                //postCreatedAtText.text = targetPostForShowing.createdAt.toString()
+                postCreatedAtText.text = getDateTime(targetPostForShowing.createdAt)
 
                 val postText = convertView.findViewById<View>(R.id.postTextView) as TextView
                 //postText.text = mPostArrayList[position-1].text

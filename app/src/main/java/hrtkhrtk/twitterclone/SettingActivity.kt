@@ -24,6 +24,8 @@ import android.util.Base64
 import android.util.Log
 import android.view.View
 import java.io.ByteArrayOutputStream
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class SettingActivity : AppCompatActivity(), DatabaseReference.CompletionListener {
@@ -65,25 +67,19 @@ class SettingActivity : AppCompatActivity(), DatabaseReference.CompletionListene
             userRef.addListenerForSingleValueEvent(
                     object : ValueEventListener {
                         override fun onDataChange(snapshot: DataSnapshot) {
-                            //val data = snapshot.value as Map<*, *>?
                             val data = snapshot.value as Map<String, String> // ここは必ず存在
-                            //saveName(data!!["name"] as String)
                             nicknameText.setText(data["nickname"])
-                            //selfIntroductionText.setText(data["self_introduction"] as String) // kotlin.TypeCastException: null cannot be cast to non-null type kotlin.String が出る
-                            //selfIntroductionText.setText(data["self_introduction"] as String? ?: "")
                             selfIntroductionText.setText(data["self_introduction"])
                             textEmail.setText(data["email"])
                             textIdForSearch.setText(data["id_for_search"])
-                            //textCreatedAt.setText(data["created_at"] as String)
                             val data2 = snapshot.value as Map<String, Long>
-                            //val created_at_Long = data["created_at"] as Long
                             val created_at_Long = data2["created_at"]!! // ここは必ず存在
-                            textCreatedAt.setText(created_at_Long.toString())
+                            //textCreatedAt.setText(created_at_Long.toString())
+                            textCreatedAt.setText(getDateTime(created_at_Long))
                             textStatus.setText(data["status"] as String)
-                            //textAvailableTo.setText(data["available_to"] as String)
-                            //val available_to_Long = data["available_to"] as Long
                             val available_to_Long = data2["available_to"]!! // ここは必ず存在
-                            textAvailableTo.setText(available_to_Long.toString())
+                            //textAvailableTo.setText(available_to_Long.toString())
+                            textAvailableTo.setText(getDateTime(available_to_Long))
 
                             val icon_image = data["icon_image"] as String
                             val background_image = data["background_image"] as String

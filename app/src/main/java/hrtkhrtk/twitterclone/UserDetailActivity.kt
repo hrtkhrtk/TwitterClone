@@ -44,8 +44,6 @@ class UserDetailActivity : AppCompatActivity() {
             }
 
             val text = map["text"] ?: ""
-            //val created_at = map["created_at"] ?: ""
-            //val created_at_Long = map["created_at"] as Long // ここは必ず存在
             val map2 = dataSnapshot.value as Map<String, Long>
             val created_at_Long = map2["created_at"]!! // ここは必ず存在
             val favoriters_list = map["favoriters_list"] as java.util.ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
@@ -53,9 +51,6 @@ class UserDetailActivity : AppCompatActivity() {
             val nickname = mUserDetail.nickname
             val user_id = mUserDetail.userId
 
-            //val post = Post(iconImage, nickname, text, created_at, favoriters_list, user_id, post_id)
-            //mPostArrayList.add(post)
-            //val postForShowing = PostForShowing(iconImage, nickname, text, created_at, favoriters_list, user_id, post_id, mPostForShowingArrayList.size)
             val postForShowing = PostForShowing(iconImage, nickname, text, created_at_Long, favoriters_list, user_id, post_id, mPostForShowingArrayList.size)
             mPostForShowingArrayList.add(postForShowing)
             mAdapter.notifyDataSetChanged()
