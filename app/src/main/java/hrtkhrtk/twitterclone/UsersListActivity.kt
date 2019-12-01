@@ -148,7 +148,9 @@ class UsersListActivity : AppCompatActivity() {
                         val self_introduction = data_n01["self_introduction"] as String
                         //val created_at = data_n01["created_at"] as String
                         //val created_at_Long = data_n01["created_at"] as Long
-                        val created_at_Long = data_n01["created_at"]!!.toLong() // ここは必ず存在
+                        //val created_at_Long = data_n01["created_at"]!!.toLong() // ここは必ず存在
+                        val data_n01_2 = snapshot_n01.value as Map<String, Long> // ここは空ではない
+                        val created_at_Long = data_n01_2["created_at"]!! // ここは必ず存在
                         val followings_list = data_n01["followings_list"] as ArrayList<String>? ?: ArrayList<String>()
                         val followers_list = data_n01["followers_list"] as ArrayList<String>? ?: ArrayList<String>()
 
@@ -170,7 +172,8 @@ class UsersListActivity : AppCompatActivity() {
                                         val post_text = post_element["text"]
                                         //val post_created_at = post_element["created_at"]
                                         //val post_created_at_Long = post_element["created_at"] as Long // ここは必ず存在する
-                                        val post_created_at_Long = post_element["created_at"]!!.toLong() // ここは必ず存在
+                                        val post_element_2 = data_n02[post_id] as Map<String, Long>
+                                        val post_created_at_Long = post_element_2["created_at"]!! // ここは必ず存在する
                                         val post_favoriters_list = post_element["favoriters_list"] as java.util.ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
 
                                         //val post = Post(bytesForIconImage, nickname, post_text!!, post_created_at!!, post_favoriters_list, userId, post_id)

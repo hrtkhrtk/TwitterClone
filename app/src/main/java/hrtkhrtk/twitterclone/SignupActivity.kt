@@ -81,17 +81,19 @@ class SignupActivity : AppCompatActivity() {
                 usersRef.addListenerForSingleValueEvent(
                         object : ValueEventListener {
                             override fun onDataChange(snapshot: DataSnapshot) {
-                                val dataInListener = snapshot.value as Map<String, String>
+                                //val dataInListener = snapshot.value as Map<String, String>
+                                val dataInListener = snapshot.value as Map<String, Long>
                                 //val created_at_InListener = snapshot.value["created_at"]
                                 //val created_at_InListener = dataInListener["created_at"] as Long? ?: (-1) // (-1)の値に意味はない
-                                val created_at_InListener = (dataInListener["created_at"] ?: (-1).toString()).toLong() // (-1)の値に意味はない
+                                val created_at_InListener = dataInListener["created_at"] ?: ((-1).toLong()) // (-1)の値に意味はない
                                 if (created_at_InListener >= 0) {
                                     val available_to = created_at_InListener + 1000*60*5 // 5分後
                                     val data_to_update_InListener = HashMap<String, Any>()
                                     data_to_update_InListener["available_to"] = available_to
                                     usersRef.updateChildren(data_to_update_InListener)
                                 } else {
-                                    val available_to = (-1) as Long // (-1)の値に意味はない
+                                    //val available_to = (-1) as Long // (-1)の値に意味はない
+                                    val available_to = (-1).toLong() // (-1)の値に意味はない
                                     val data_to_update_InListener = HashMap<String, Any>()
                                     data_to_update_InListener["available_to"] = available_to
                                     usersRef.updateChildren(data_to_update_InListener)

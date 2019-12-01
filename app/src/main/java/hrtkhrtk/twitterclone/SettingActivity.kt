@@ -75,17 +75,18 @@ class SettingActivity : AppCompatActivity(), DatabaseReference.CompletionListene
                             textEmail.setText(data["email"])
                             textIdForSearch.setText(data["id_for_search"])
                             //textCreatedAt.setText(data["created_at"] as String)
+                            val data2 = snapshot.value as Map<String, Long>
                             //val created_at_Long = data["created_at"] as Long
-                            val created_at_Long = data["created_at"]!!.toLong() // ここは必ず存在
+                            val created_at_Long = data2["created_at"]!! // ここは必ず存在
                             textCreatedAt.setText(created_at_Long.toString())
-                            textStatus.setText(data["status"])
+                            textStatus.setText(data["status"] as String)
                             //textAvailableTo.setText(data["available_to"] as String)
                             //val available_to_Long = data["available_to"] as Long
-                            val available_to_Long = data["available_to"]!!.toLong() // ここは必ず存在
+                            val available_to_Long = data2["available_to"]!! // ここは必ず存在
                             textAvailableTo.setText(available_to_Long.toString())
 
-                            val icon_image = data["icon_image"]!! // ここは必ず存在
-                            val background_image = data["background_image"]!! // ここは必ず存在
+                            val icon_image = data["icon_image"] as String
+                            val background_image = data["background_image"] as String
 
                             if (icon_image.isNotEmpty()) { // 参考：Lesson8のMainActivity.kt
                                 val bytes = Base64.decode(icon_image, Base64.DEFAULT) // 参考：Lesson8のMainActivity.kt
