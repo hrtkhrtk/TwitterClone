@@ -285,7 +285,8 @@ class UsersListActivity : AppCompatActivity() {
         mAdapter.setUserArrayList(mUserArrayList)
         mListView.adapter = mAdapter
 
-        if (id == R.id.nav_search_users) {
+        //if (id == R.id.nav_search_users) {
+        if (id == id__nav_search_users) {
             //mToolbar.title = "search_users（ひとまずuser一覧）" // TODO:
             title = "最初に表示されるのは一覧"
 
@@ -294,14 +295,16 @@ class UsersListActivity : AppCompatActivity() {
 
             mDatabaseReference.child("users").addChildEventListener(mEventListenerForUsersList)
         }
-        else if (id == R.id.nav_followings_list) {
+        //else if (id == R.id.nav_followings_list) {
+        else if (id == id__nav_followings_list) {
             title = "followings_list"
 
             // ログイン済みのユーザーを取得する
             val user = FirebaseAuth.getInstance().currentUser!! // ログインしていないとここには来ない
             mDatabaseReference.child("users").child(user.uid).child("followings_list").addValueEventListener(mEventListenerForFollowingsFollowersListRef)
         }
-        else if (id == R.id.nav_followers_list) {
+        //else if (id == R.id.nav_followers_list) {
+        else if (id == id__nav_followers_list) {
             title = "followers_list"
 
             // ログイン済みのユーザーを取得する

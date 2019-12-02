@@ -5,6 +5,15 @@ import java.util.*
 
 const val NameKEY = "name"          // Preferenceに表示名を保存する時のキー
 
+const val id__nav_posts = 0
+const val id__nav_search_posts = 1
+const val id__nav_search_users = 2
+const val id__nav_followings_list = 3
+const val id__nav_followers_list = 4
+const val id__nav_favorites_list = 5
+const val id__nav_my_posts = 6
+const val id__nav_policy = 7
+
 fun getDateTime(data_Long: Long, pattern: String = "yyyy/MM/dd HH:mm:ss"): String? {
     // 参考：Lesson3「引数にはデフォルト値を指定することができます」
     // 参考：https://qiita.com/emboss369/items/5a3ddea301cbf79d971a

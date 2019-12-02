@@ -19,8 +19,31 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_main"
-        app:menu="@menu/activity_main_drawer"/>
+        android:fitsSystemWindows="true">
+        <RelativeLayout
+            android:id="@+id/nav_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <include
+                android:id="@+id/nav_header"
+                layout="@layout/nav_header_main"/>
+
+            <ListView
+                android:id="@+id/nav_menu_items"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/nav_footer"
+                android:layout_below="@id/nav_header"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp" />
+
+            <FrameLayout
+                android:id="@id/nav_footer"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_alignParentBottom="true" />
+        </RelativeLayout>
+    </android.support.design.widget.NavigationView>
 
 </android.support.v4.widget.DrawerLayout>

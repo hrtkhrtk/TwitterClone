@@ -19,15 +19,14 @@ import android.util.Base64
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ListView
+import android.widget.*
 import com.google.firebase.database.*
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+//class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var mToolbar: Toolbar
 
@@ -362,8 +361,157 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawer.addDrawerListener(toggle)
         toggle.syncState()
 
-        val navigationView = findViewById<NavigationView>(R.id.nav_view)
-        navigationView.setNavigationItemSelectedListener(this)
+        //val navigationView = findViewById<NavigationView>(R.id.nav_view)
+        //navigationView.setNavigationItemSelectedListener(this)
+        val navHeader = findViewById<RelativeLayout>(R.id.nav_header)
+        val navListView = findViewById<ListView>(R.id.nav_menu_items)
+        val navFooter = findViewById<FrameLayout>(R.id.nav_footer)
+
+        val navigationItemList = ArrayList<NavigationItem>()
+        val navigationItem_01 = NavigationItem(id__nav_posts, "posts")
+        val navigationItem_02 = NavigationItem(id__nav_search_posts, "search_posts")
+        val navigationItem_03 = NavigationItem(id__nav_search_users, "search_users")
+        val navigationItem_04 = NavigationItem(id__nav_followings_list, "followings_list")
+        val navigationItem_05 = NavigationItem(id__nav_followers_list, "followers_list")
+        val navigationItem_06 = NavigationItem(id__nav_favorites_list, "favorites_list")
+        val navigationItem_07 = NavigationItem(id__nav_my_posts, "my_posts")
+        //val navigationItem_08 = NavigationItem(id__nav_policy, "policy")
+
+        navigationItemList.add(navigationItem_01)
+        navigationItemList.add(navigationItem_02)
+        navigationItemList.add(navigationItem_03)
+        navigationItemList.add(navigationItem_04)
+        navigationItemList.add(navigationItem_05)
+        navigationItemList.add(navigationItem_06)
+        navigationItemList.add(navigationItem_07)
+        //navigationItemList.add(navigationItem_08)
+
+        val navigationListAdapter = NavigationListAdapter(this)
+        navigationListAdapter.setNavigationItemArrayList(navigationItemList)
+        navListView.adapter = navigationListAdapter
+        navigationListAdapter.notifyDataSetChanged() // これがいるか不明
+
+        //val navigationView = findViewById<NavigationView>(R.id.nav_view)
+        //navigationView.setNavigationItemSelectedListener(this)
+
+
+
+        navListView.setOnItemClickListener { _, _, position, _ ->
+            val item_id = navigationItemList[position].id
+
+            //if (item_id == id__nav_policy) {
+            //    //mToolbar.title = "policy"
+            //    val intent = Intent(this@MainActivity, PolicyActivity::class.java)
+            //    startActivity(intent)
+            //}
+
+            val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
+            drawer.closeDrawer(GravityCompat.START)
+
+            if ((item_id == id__nav_posts) || (item_id == id__nav_favorites_list) || (item_id == id__nav_my_posts) || (item_id == id__nav_search_posts)) {
+                // Postのリストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
+                mPostForShowingArrayList.clear()
+                mAdapter.setPostForShowingArrayList(mPostForShowingArrayList)
+                mListView.adapter = mAdapter
+
+
+                if (item_id == id__nav_posts) {
+                    searchWindow.visibility = View.GONE
+                    searchButton.visibility = View.GONE
+
+                    mToolbar.title = "posts"
+                    // この中は仮置き // TODO:
+
+                    // ログイン済みのユーザーを取得する
+                    val user = FirebaseAuth.getInstance().currentUser
+
+                    // ログインしていなければログイン画面に遷移させる
+                    if (user == null) {
+                        val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                        startActivity(intent)
+                    }
+                    else {
+                        // removeいる？
+                        // remove↓これで大丈夫？ // TODO:
+                        //mDatabaseReference.child("users").child(user.uid).child("followings_list").removeEventListener(mEventListenerForFollowingsListRef)
+                        mDatabaseReference.child("users").child(user.uid).child("followings_list").addValueEventListener(mEventListenerForFollowingsListRef)
+                    }
+                } else if (item_id == id__nav_my_posts) {
+                    searchWindow.visibility = View.GONE
+                    searchButton.visibility = View.GONE
+
+                    mToolbar.title = "my_posts"
+                    // この中は仮置き // TODO:
+
+                    // ログイン済みのユーザーを取得する
+                    val user = FirebaseAuth.getInstance().currentUser
+
+                    // ログインしていなければログイン画面に遷移させる
+                    if (user == null) {
+                        val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                        startActivity(intent)
+                    }
+                    else {
+                        //mDatabaseReference.child("posts").child(user.uid)!!.addValueEventListener(mEventListenerForMyPosts)
+                        // removeいる？
+                        // remove↓これで大丈夫？ // TODO:
+                        //mDatabaseReference.child("posts").child(user.uid).removeEventListener(mEventListenerForMyPosts)
+                        mDatabaseReference.child("posts").child(user.uid).addChildEventListener(mEventListenerForMyPosts)
+                    }
+                }
+                else if (item_id == id__nav_favorites_list) {
+                    searchWindow.visibility = View.GONE
+                    searchButton.visibility = View.GONE
+
+                    mToolbar.title = "favorites_list"
+
+                    // ログイン済みのユーザーを取得する
+                    val user = FirebaseAuth.getInstance().currentUser
+
+                    // ログインしていなければログイン画面に遷移させる
+                    if (user == null) {
+                        val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                        startActivity(intent)
+                    }
+                    else {
+                        // removeいる？ // TODO:
+                        mDatabaseReference.child("users").child(user.uid).child("favorites_list").addValueEventListener(mEventListenerForFavoritesListRef)
+                    }
+                }
+                else if (item_id == id__nav_search_posts) {
+                    title = "最初に表示されるのはpost一覧"
+
+                    //val searchWindow = findViewById<EditText>(R.id.searchWindow)
+                    //val searchButton = findViewById<Button>(R.id.searchButton)
+                    searchWindow.visibility = View.VISIBLE
+                    searchButton.visibility = View.VISIBLE
+
+                    mDatabaseReference.child("posts").addListenerForSingleValueEvent(mEventListenerForPostsRef) // ひとまずSingleValueEventで
+                }
+            }
+            else if ((item_id == id__nav_search_users) || (item_id == id__nav_followings_list) || (item_id == id__nav_followers_list)) {
+                if (item_id == id__nav_search_users) {
+                    val intent = Intent(this@MainActivity, UsersListActivity::class.java)
+                    intent.putExtra("id", item_id)
+                    startActivity(intent)
+                }
+                else if ((item_id == id__nav_followings_list) || (item_id == id__nav_followers_list)) {
+                    // ログイン済みのユーザーを取得する
+                    val user = FirebaseAuth.getInstance().currentUser
+
+                    // ログインしていなければログイン画面に遷移させる
+                    if (user == null) {
+                        val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                        startActivity(intent)
+                    }
+                    else {
+                        val intent = Intent(this@MainActivity, UsersListActivity::class.java)
+                        intent.putExtra("id", item_id)
+                        startActivity(intent)
+                    }
+                }
+            }
+        }
 
 
 
@@ -382,10 +530,40 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onResume() {
         super.onResume()
-        val navigationView = findViewById<NavigationView>(R.id.nav_view)
+        //val navigationView = findViewById<NavigationView>(R.id.nav_view)
 
         // Resumeしたときはpostsを表示する
-        onNavigationItemSelected(navigationView.menu.getItem(0))
+        //onNavigationItemSelected(navigationView.menu.getItem(0))
+
+        // これが必要か不明
+        val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
+        drawer.closeDrawer(GravityCompat.START)
+
+        // Postのリストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
+        mPostForShowingArrayList.clear()
+        mAdapter.setPostForShowingArrayList(mPostForShowingArrayList)
+        mListView.adapter = mAdapter
+
+        searchWindow.visibility = View.GONE
+        searchButton.visibility = View.GONE
+
+        mToolbar.title = "posts"
+        // この中は仮置き // TODO:
+
+        // ログイン済みのユーザーを取得する
+        val user = FirebaseAuth.getInstance().currentUser
+
+        // ログインしていなければログイン画面に遷移させる
+        if (user == null) {
+            val intent = Intent(this@MainActivity, LoginActivity::class.java)
+            startActivity(intent)
+        }
+        else {
+            // removeいる？
+            // remove↓これで大丈夫？ // TODO:
+            //mDatabaseReference.child("users").child(user.uid).child("followings_list").removeEventListener(mEventListenerForFollowingsListRef)
+            mDatabaseReference.child("users").child(user.uid).child("followings_list").addValueEventListener(mEventListenerForFollowingsListRef)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -411,6 +589,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return super.onOptionsItemSelected(item)
     }
 
+    /*
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
 
@@ -534,4 +713,5 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         return true
     }
+    */
 }
