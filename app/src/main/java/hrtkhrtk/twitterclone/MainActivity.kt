@@ -1,5 +1,6 @@
 package hrtkhrtk.twitterclone
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.design.widget.FloatingActionButton
@@ -12,13 +13,19 @@ import android.support.v7.widget.Toolbar
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.design.widget.NavigationView
+import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
 import android.util.Base64
 import android.util.Log
+import android.view.View
+import android.view.inputmethod.InputMethodManager
+import android.widget.Button
+import android.widget.EditText
 import android.widget.ListView
 import com.google.firebase.database.*
 
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -33,6 +40,49 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mAdapter: PostForShowingsListAdapter
 
     //private var mFollowingsListRef: DatabaseReference? = null
+
+    private val mEventListenerForPostsRef = object : ValueEventListener {
+        override fun onDataChange(dataSnapshot: DataSnapshot) {
+            val posts_list_all = dataSnapshot.value as HashMap<String, String>? ?: HashMap<String, String>() // ここはnullかも
+
+            for (user_id in posts_list_all.keys) {
+                val posts_list_each = posts_list_all[user_id] as Map<String, String> // ここは必ず存在（たぶん）
+
+                mDatabaseReference.child("users").child(user_id).addListenerForSingleValueEvent(
+                    object : ValueEventListener {
+                        override fun onDataChange(snapshot_in_userRef: DataSnapshot) {
+                            val data_in_userRef = snapshot_in_userRef.value as Map<String, String> // ここは必ず存在
+                            val iconImageString = data_in_userRef["icon_image"]!! // ここは必ず存在
+                            val nickname = data_in_userRef["nickname"]!! // ここは必ず存在
+
+                            val bytes =
+                                if (iconImageString.isNotEmpty()) {
+                                    Base64.decode(iconImageString, Base64.DEFAULT)
+                                } else {
+                                    byteArrayOf()
+                                }
+
+                            for (post_id in posts_list_each.keys) {
+                                val post_each = posts_list_each[post_id] as Map<String, String> // ここは必ず存在
+                                val text = post_each["text"]!! // ここは必ず存在
+                                val post_each_2 = posts_list_each[post_id] as Map<String, Long> // ここは必ず存在
+                                val created_at_Long = post_each_2["created_at"]!! // ここは必ず存在
+                                val favoriters_list = post_each["favoriters_list"] as java.util.ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
+
+                                val postForShowing = PostForShowing(bytes, nickname, text, created_at_Long, favoriters_list, user_id, post_id, mPostForShowingArrayList.size) // onChildRemovedのときもPostForShowingのpositionInArrayListへの配慮が必要
+                                mPostForShowingArrayList.add(postForShowing)
+                                mAdapter.notifyDataSetChanged()
+                            }
+                        }
+
+                        override fun onCancelled(firebaseError_in_userRef: DatabaseError) {}
+                    }
+                )
+            }
+        }
+
+        override fun onCancelled(firebaseError: DatabaseError) {}
+    }
 
 
 
@@ -224,6 +274,88 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
 
+
+
+        searchButton.setOnClickListener { v ->
+            // キーボードが出てたら閉じる
+            val im = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            im.hideSoftInputFromWindow(v.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+
+            val searchText = searchWindow.text.toString()
+
+            if (searchText.isEmpty()) {
+                Snackbar.make(v, "入力して下さい", Snackbar.LENGTH_LONG).show()
+
+                //これがいるのか不明
+                // Postのリストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
+                mPostForShowingArrayList.clear()
+                mAdapter.setPostForShowingArrayList(mPostForShowingArrayList)
+                mListView.adapter = mAdapter
+
+                title = "post一覧"
+
+                mDatabaseReference.child("posts").addListenerForSingleValueEvent(mEventListenerForPostsRef) // ひとまずSingleValueEventで
+            } else {
+                //これがいるのか不明
+                // Postのリストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
+                mPostForShowingArrayList.clear()
+                mAdapter.setPostForShowingArrayList(mPostForShowingArrayList)
+                mListView.adapter = mAdapter
+
+                title = "検索結果"
+
+                mDatabaseReference.child("posts").addListenerForSingleValueEvent(
+                    object : ValueEventListener {
+                        override fun onDataChange(dataSnapshot: DataSnapshot) {
+                            val posts_list_all = dataSnapshot.value as HashMap<String, String>? ?: HashMap<String, String>() // ここはnullかも
+
+                            for (user_id in posts_list_all.keys) {
+                                val posts_list_each = posts_list_all[user_id] as Map<String, String> // ここは必ず存在（たぶん）
+                                for (post_id in posts_list_each.keys) {
+                                    val post_each = posts_list_each[post_id] as Map<String, String> // ここは必ず存在
+                                    val text = post_each["text"]!! // ここは必ず存在
+
+                                    val regex = Regex(searchText) // 参考：http://extra-vision.blogspot.com/2016/11/kotlin.html
+                                    if (regex.containsMatchIn(text)) {
+                                        val post_each_2 = posts_list_each[post_id] as Map<String, Long> // ここは必ず存在
+                                        val created_at_Long = post_each_2["created_at"]!! // ここは必ず存在
+                                        val favoriters_list = post_each["favoriters_list"] as java.util.ArrayList<String>? ?: ArrayList<String>() // こんな書き方でいい？
+
+                                        mDatabaseReference.child("users").child(user_id).addListenerForSingleValueEvent(
+                                            object : ValueEventListener {
+                                                override fun onDataChange(snapshot_in_userRef: DataSnapshot) {
+                                                    val data_in_userRef = snapshot_in_userRef.value as Map<String, String> // ここは必ず存在
+                                                    val iconImageString = data_in_userRef["icon_image"]!! // ここは必ず存在
+                                                    val nickname = data_in_userRef["nickname"]!! // ここは必ず存在
+
+                                                    val bytes =
+                                                        if (iconImageString.isNotEmpty()) {
+                                                            Base64.decode(iconImageString, Base64.DEFAULT)
+                                                        } else {
+                                                            byteArrayOf()
+                                                        }
+
+                                                    val postForShowing = PostForShowing(bytes, nickname, text, created_at_Long, favoriters_list, user_id, post_id, mPostForShowingArrayList.size) // onChildRemovedのときもPostForShowingのpositionInArrayListへの配慮が必要
+                                                    mPostForShowingArrayList.add(postForShowing)
+                                                    mAdapter.notifyDataSetChanged()
+                                                }
+
+                                                override fun onCancelled(firebaseError_in_userRef: DatabaseError) {}
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        override fun onCancelled(firebaseError: DatabaseError) {}
+                    }
+                )
+            }
+        }
+
+
+
         // ナビゲーションドロワーの設定
         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
         val toggle = ActionBarDrawerToggle(this, drawer, mToolbar, R.string.app_name, R.string.app_name)
@@ -282,23 +414,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
 
-
-        if (id == R.id.nav_search_posts) {
-            mToolbar.title = "search_posts"
-            //} else if (id == R.id.nav_favorites_list) {
-            //    mToolbar.title = "favorites_list"
-        } else if (id == R.id.nav_policy) {
+        if (id == R.id.nav_policy) {
             //mToolbar.title = "policy"
             val intent = Intent(this@MainActivity, PolicyActivity::class.java)
             startActivity(intent)
         }
 
-
         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
         drawer.closeDrawer(GravityCompat.START)
 
         //if ((id == R.id.nav_posts) || (id == R.id.nav_favorites_list) || (id == R.id.nav_my_posts)) {
-        if ((id == R.id.nav_posts) || (id == R.id.nav_favorites_list) || (id == R.id.nav_my_posts) || (id == R.id.nav_favorites_list)) {
+        //if ((id == R.id.nav_posts) || (id == R.id.nav_favorites_list) || (id == R.id.nav_my_posts) || (id == R.id.nav_favorites_list)) {
+        if ((id == R.id.nav_posts) || (id == R.id.nav_favorites_list) || (id == R.id.nav_my_posts) || (id == R.id.nav_search_posts)) {
             // Postのリストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
             //mPostArrayList.clear()
             //mAdapter.setPostArrayList(mPostArrayList)
@@ -308,10 +435,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
             if (id == R.id.nav_posts) {
+                searchWindow.visibility = View.GONE
+                searchButton.visibility = View.GONE
+
                 mToolbar.title = "posts"
                 // この中は仮置き // TODO:
-
-                Log.d("test191127n10", "test191127n10")
 
                 // ログイン済みのユーザーを取得する
                 val user = FirebaseAuth.getInstance().currentUser
@@ -322,13 +450,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     startActivity(intent)
                 }
                 else {
-                    Log.d("test191127n11", "test191127n11")
                     // removeいる？
                     // remove↓これで大丈夫？ // TODO:
                     //mDatabaseReference.child("users").child(user.uid).child("followings_list").removeEventListener(mEventListenerForFollowingsListRef)
                     mDatabaseReference.child("users").child(user.uid).child("followings_list").addValueEventListener(mEventListenerForFollowingsListRef)
                 }
             } else if (id == R.id.nav_my_posts) {
+                searchWindow.visibility = View.GONE
+                searchButton.visibility = View.GONE
+
                 mToolbar.title = "my_posts"
                 // この中は仮置き // TODO:
 
@@ -349,6 +479,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             }
             else if (id == R.id.nav_favorites_list) {
+                searchWindow.visibility = View.GONE
+                searchButton.visibility = View.GONE
+
                 mToolbar.title = "favorites_list"
 
                 // ログイン済みのユーザーを取得する
@@ -363,6 +496,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     // removeいる？ // TODO:
                     mDatabaseReference.child("users").child(user.uid).child("favorites_list").addValueEventListener(mEventListenerForFavoritesListRef)
                 }
+            }
+            else if (id == R.id.nav_search_posts) {
+                title = "最初に表示されるのはpost一覧"
+
+                //val searchWindow = findViewById<EditText>(R.id.searchWindow)
+                //val searchButton = findViewById<Button>(R.id.searchButton)
+                searchWindow.visibility = View.VISIBLE
+                searchButton.visibility = View.VISIBLE
+
+                mDatabaseReference.child("posts").addListenerForSingleValueEvent(mEventListenerForPostsRef) // ひとまずSingleValueEventで
             }
         }
         else if ((id == R.id.nav_search_users) || (id == R.id.nav_followings_list) || (id == R.id.nav_followers_list)) {

@@ -133,16 +133,34 @@ class SignupActivity : AppCompatActivity() {
 
             val email = emailText.text.toString()
             val password = passwordText.text.toString()
+            val password_confirmation = passwordConfirmationText.text.toString()
             val nickname = nicknameText.text.toString()
             val id_for_search = idForSearchText.text.toString()
 
-            //if (email.length != 0 && password.length >= 6 && nickname.length != 0) {
-            if (email.length != 0 && password.length >= 6 && nickname.length != 0 && id_for_search.length != 0) {
-                signup(email, password)
-            } else {
-                // エラーを表示する
-                Snackbar.make(v, "正しく入力してください", Snackbar.LENGTH_LONG).show()
-            }
+            FirebaseDatabase.getInstance().reference.child("id_for_search_list").addListenerForSingleValueEvent(
+                object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val data = snapshot.value as HashMap<String, String>? ?: HashMap<String, String>() // ここは存在するとみなしていいと思うが安全のため
+                        if (data.keys.contains(id_for_search)) { // 含まれていれば
+                            Snackbar.make(v, "そのidは使われています", Snackbar.LENGTH_LONG).show()
+                        } else if (password != password_confirmation) {
+                            // エラーを表示する
+                            Snackbar.make(v, "passwordが一致しません", Snackbar.LENGTH_LONG).show()
+                        } else if (email.length != 0 && password.length >= 6 && nickname.length != 0 && id_for_search.length != 0) {
+                            signup(email, password)
+                        } else {
+                            // エラーを表示する
+                            Snackbar.make(v, "正しく入力してください", Snackbar.LENGTH_LONG).show()
+                        }
+
+                    }
+
+                    override fun onCancelled(firebaseError: DatabaseError) {
+                        // エラーを表示する
+                        Snackbar.make(v, firebaseError.getMessage(), Snackbar.LENGTH_LONG).show() // これでいい？ // 参考：https://firebase.google.com/docs/reference/android/com/google/firebase/database/DatabaseError.html#getMessage()
+                    }
+                }
+            )
         }
     }
 
