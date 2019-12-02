@@ -28,10 +28,12 @@ tools:showIn="@layout/app_bar_main">
     android:background="@drawable/custom_button"
     android:text="search"
     android:textColor="@color/colorButtonText"
-    android:visibility="gone"/>
+    android:visibility="gone"
+    android:layout_below="@+id/searchWindow"/>
 
 <ListView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/listView" />
+    android:id="@+id/listView"
+    android:layout_below="@+id/searchButton"/>
 </RelativeLayout>
