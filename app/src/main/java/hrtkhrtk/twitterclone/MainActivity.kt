@@ -9,6 +9,8 @@ import android.view.MenuItem
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.support.v7.widget.Toolbar
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
@@ -393,6 +395,57 @@ class MainActivity : AppCompatActivity() {
 
         //val navigationView = findViewById<NavigationView>(R.id.nav_view)
         //navigationView.setNavigationItemSelectedListener(this)
+
+
+
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            FirebaseDatabase.getInstance().reference.child("users").child(user.uid).addListenerForSingleValueEvent(
+                    object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            val data = snapshot.value as Map<String, String> // ここは必ず存在
+
+                            val nicknameText_in_nav_header_main = navHeader.findViewById<TextView>(R.id.nicknameTextView)
+                            nicknameText_in_nav_header_main.setText(data["nickname"])
+
+                            val idForSearchText_in_nav_header_main = navHeader.findViewById<TextView>(R.id.idForSearchTextView)
+                            idForSearchText_in_nav_header_main.setText(data["id_for_search"])
+
+                            val followingsNumberText_in_nav_header_main = navHeader.findViewById<TextView>(R.id.followingsNumberTextView)
+                            val followings_list = data["followings_list"] as ArrayList<String>? ?: ArrayList<String>()
+                            followingsNumberText_in_nav_header_main.setText(followings_list.size.toString())
+
+                            val followersNumberText_in_nav_header_main = navHeader.findViewById<TextView>(R.id.followersNumberTextView)
+                            val followers_list = data["followers_list"] as ArrayList<String>? ?: ArrayList<String>()
+                            followersNumberText_in_nav_header_main.setText(followers_list.size.toString())
+
+                            val imageView_in_nav_header_main = navHeader.findViewById<View>(R.id.imageView) as ImageView
+                            val iconImageString = data["icon_image"]
+                            val bytes =
+                                if (iconImageString!!.isNotEmpty()) {
+                                    Base64.decode(iconImageString, Base64.DEFAULT)
+                                } else {
+                                    byteArrayOf()
+                                }
+                            if (bytes.isNotEmpty()) {
+                                val image = BitmapFactory.decodeByteArray(bytes, 0, bytes.size).copy(Bitmap.Config.ARGB_8888, true)
+                                imageView_in_nav_header_main.setImageBitmap(image)
+                            }
+                        }
+
+                        override fun onCancelled(firebaseError: DatabaseError) {}
+                    }
+            )
+        }
+
+
+
+        val titleInNavFooter = navFooter.findViewById<TextView>(R.id.titleInNavFooter)
+        titleInNavFooter.text = "policy"
+        titleInNavFooter.setOnClickListener { v ->
+            val intent = Intent(this@MainActivity, PolicyActivity::class.java)
+            startActivity(intent)
+        }
 
 
 

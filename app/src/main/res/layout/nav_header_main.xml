@@ -2,7 +2,7 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="150dp"
+    android:layout_height="200dp"
     android:paddingBottom="16dp"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
@@ -40,18 +40,32 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="500 followings"
-        android:id="@+id/followingsTextView"
+        android:text="456"
+        android:id="@+id/followingsNumberTextView"
         android:layout_below="@+id/idForSearchTextView"
         android:layout_alignParentLeft="true"/>
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="500 followers"
-        android:id="@+id/followersTextView"
-        android:layout_below="@+id/followingsTextView"
-        android:layout_alignParentLeft="true"/>
+        android:text="followings"
+        android:id="@+id/others_n01"
+        android:layout_below="@+id/idForSearchTextView"
+        android:layout_toEndOf="@+id/followingsNumberTextView" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="789"
+        android:id="@+id/followersNumberTextView"
+        android:layout_below="@+id/idForSearchTextView"
+        android:layout_toEndOf="@+id/others_n01"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="followers"
+        android:layout_below="@+id/idForSearchTextView"
+        android:layout_toEndOf="@+id/followersNumberTextView"/>
 
 </RelativeLayout>
